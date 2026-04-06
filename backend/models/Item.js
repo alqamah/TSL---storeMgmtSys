@@ -17,10 +17,12 @@ const itemSchema = new Schema(
     category: {
       type: String,
       trim: true,
+      enum: ['C1', 'C2', 'C3', 'C4', 'C5'],
     },
     capacity: {
-      type: Number,
-      min: [0, 'Capacity cannot be negative'],
+      type: String,
+      trim: true,
+      default: '',
     },
     quantity: {
       type: Number,
@@ -39,11 +41,6 @@ const itemSchema = new Schema(
       default: '',
     },
     make: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    parent: {
       type: String,
       trim: true,
       default: '',
