@@ -20,7 +20,6 @@ const itemSchema = new Schema(
     },
     capacity: {
       type: Number,
-      required: [true, 'Capacity is required'],
       min: [0, 'Capacity cannot be negative'],
     },
     quantity: {
@@ -40,6 +39,11 @@ const itemSchema = new Schema(
       default: '',
     },
     make: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    parent: {
       type: String,
       trim: true,
       default: '',

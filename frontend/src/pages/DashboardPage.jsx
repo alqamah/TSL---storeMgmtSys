@@ -97,7 +97,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="stat-card">
+          {/* <div className="stat-card">
             <div className="stat-icon green">
               <HiOutlineUsers />
             </div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
               <div className="stat-value">{stats.employees}</div>
               <div className="stat-label">Employees</div>
             </div>
-          </div>
+          </div> */}
 
           <div className="stat-card">
             <div className="stat-icon amber">
