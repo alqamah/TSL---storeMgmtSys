@@ -30,6 +30,8 @@ export default function IssuesPage() {
     vendor_supervisor_gatepass_no: '',
     job_location: '',
     issuer_p_no: '',
+    issue_date: new Date().toISOString().split('T')[0],
+    return_date: '',
     items: [{ item: '', quantity: 1 }],
   });
 
@@ -67,6 +69,8 @@ export default function IssuesPage() {
         vendor_supervisor_gatepass_no: '',
         job_location: '',
         issuer_p_no: user?.p_no || '',
+        issue_date: new Date().toISOString().split('T')[0],
+        return_date: '',
         items: [{ item: '', quantity: 1 }],
       });
       setIssueModalOpen(true);
@@ -98,6 +102,11 @@ export default function IssuesPage() {
 
   const handleIssueSubmit = async (e) => {
     e.preventDefault();
+    if (issueForm.return_date && new Date(issueForm.return_date) < new Date(issueForm.issue_date)) {
+      toast.error('Return date cannot be before issue date');
+      return;
+    }
+
     try {
       await issuesAPI.create({
         employee_p_no: issueForm.employee_p_no,
@@ -111,12 +120,15 @@ export default function IssuesPage() {
           item: i.item,
           quantity: Number(i.quantity),
         })),
+        issue_date: issueForm.issue_date,
+        return_date: issueForm.return_date || null,
       });
       toast.success('Items issued successfully');
       setIssueModalOpen(false);
       loadIssues();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Issue failed');
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Issue failed'));
     }
   };
 
@@ -132,7 +144,8 @@ export default function IssuesPage() {
       setReturnModalOpen(false);
       loadIssues();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Return failed');
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Return failed'));
     }
   };
 
@@ -370,7 +383,7 @@ export default function IssuesPage() {
                   </div>
                 </div>
 
-                <div className="form-row">
+                <div className="form-row-4">
                   <div className="form-group">
                     <label className="form-label">Issuer P.No *</label>
                     <input
@@ -381,6 +394,30 @@ export default function IssuesPage() {
                       }
                       maxLength={6}
                       required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Issue Date *</label>
+                    <input
+                      className="form-input"
+                      type="date"
+                      value={issueForm.issue_date}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, issue_date: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Return Date</label>
+                    <input
+                      className="form-input"
+                      type="date"
+                      min={issueForm.issue_date}
+                      value={issueForm.return_date}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, return_date: e.target.value })
+                      }
                     />
                   </div>
                   <div className="form-group" />

@@ -35,7 +35,14 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null); // null = create, id = edit
+  const [viewing, setViewing] = useState(null); // item to view
   const [form, setForm] = useState({ ...emptyItem });
+  const [filters, setFilters] = useState({
+    category: '',
+    make: '',
+    location: '',
+    owner: '',
+  });
 
   useEffect(() => {
     loadItems();
@@ -84,10 +91,15 @@ export default function ItemsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (form.next_due_date && form.prev_due_date && new Date(form.next_due_date) < new Date(form.prev_due_date)) {
+      toast.error('Next due date cannot be before prev due date');
+      return;
+    }
+
     try {
       const payload = {
         ...form,
-        capacity: Number(form.capacity),
         quantity: Number(form.quantity),
         prev_due_date: form.prev_due_date || null,
         next_due_date: form.next_due_date || null,
@@ -103,7 +115,8 @@ export default function ItemsPage() {
       setModalOpen(false);
       loadItems(search);
     } catch (err) {
-      toast.error(err.response?.data?.error || err.response?.data?.messages?.[0] || 'Failed to save');
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to save'));
     }
   };
 
@@ -114,7 +127,8 @@ export default function ItemsPage() {
       toast.success('Item deleted');
       loadItems(search);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Delete failed');
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Delete failed'));
     }
   };
 
@@ -168,6 +182,25 @@ export default function ItemsPage() {
                 onChange={handleSearch}
               />
             </div>
+
+            <div className="table-filters-row">
+              <select className="form-select select-sm" value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
+                <option value="">All Categories</option>
+                {['C1', 'C2', 'C3', 'C4', 'C5'].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select className="form-select select-sm" value={filters.make} onChange={(e) => setFilters({...filters, make: e.target.value})}>
+                <option value="">All Makes</option>
+                {[...new Set(items.map(i => i.make).filter(Boolean))].map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <select className="form-select select-sm" value={filters.location} onChange={(e) => setFilters({...filters, location: e.target.value})}>
+                <option value="">All Locations</option>
+                {[...new Set(items.map(i => i.location).filter(Boolean))].map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+              <select className="form-select select-sm" value={filters.owner} onChange={(e) => setFilters({...filters, owner: e.target.value})}>
+                <option value="">All Owners</option>
+                {[...new Set(items.map(i => i.owner).filter(Boolean))].map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
           </div>
 
           <div className="table-wrapper">
@@ -177,11 +210,8 @@ export default function ItemsPage() {
                   <th>SAP ID</th>
                   <th>Title</th>
                   <th>Qty</th>
-                  <th>Capacity</th>
-                  <th>Make</th>
                   <th>Location</th>
-                  <th>Next Due</th>
-                  <th>Owner</th>
+                  <th>Description</th>
                   {user && <th>Actions</th>}
                 </tr>
               </thead>
@@ -196,56 +226,51 @@ export default function ItemsPage() {
                     </td>
                   </tr>
                 ) : (
-                  items.map((item) => (
-                    <tr key={item._id}>
-                      <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                        {item.sap_id}
-                      </td>
-                      <td style={{ color: 'var(--text-primary)' }}>{item.title}</td>
-                      <td>
-                        <span className={`badge ${item.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
-                          {item.quantity}
-                        </span>
-                      </td>
-                      <td>{item.capacity}</td>
-                      <td>{item.make || '—'}</td>
-                      <td>{item.location || '—'}</td>
-                      <td>
-                        {item.next_due_date ? (
-                          <span
-                            className={`badge ${
-                              isOverdue(item.next_due_date) ? 'badge-red' : 'badge-green'
-                            }`}
-                          >
-                            {formatDate(item.next_due_date)}
-                          </span>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                      <td>{item.owner || '—'}</td>
-                      {user && (
-                        <td>
-                          <div style={{ display: 'flex', gap: '0.25rem' }}>
-                            <button
-                              className="btn btn-ghost btn-sm"
-                              onClick={() => openEdit(item)}
-                              title="Edit"
-                            >
-                              <HiOutlinePencil />
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() => handleDelete(item._id)}
-                              title="Delete"
-                            >
-                              <HiOutlineTrash />
-                            </button>
-                          </div>
+                  items
+                    .filter(item => {
+                      const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
+                                           item.sap_id.toLowerCase().includes(search.toLowerCase());
+                      const matchesCategory = !filters.category || item.category === filters.category;
+                      const matchesMake = !filters.make || item.make === filters.make;
+                      const matchesLocation = !filters.location || item.location === filters.location;
+                      const matchesOwner = !filters.owner || item.owner === filters.owner;
+                      return matchesSearch && matchesCategory && matchesMake && matchesLocation && matchesOwner;
+                    })
+                    .map((item) => (
+                      <tr key={item._id} onClick={() => setViewing(item)} style={{ cursor: 'pointer' }}>
+                        <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                          {item.sap_id}
                         </td>
-                      )}
-                    </tr>
-                  ))
+                        <td style={{ color: 'var(--text-primary)' }}>{item.title}</td>
+                        <td>
+                          <span className={`badge ${item.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
+                            {item.quantity}
+                          </span>
+                        </td>
+                        <td>{item.location || '—'}</td>
+                        <td>{item.description || '—'}</td>
+                        {user && (
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.25rem' }}>
+                              <button
+                                className="btn btn-ghost btn-sm"
+                                onClick={(e) => { e.stopPropagation(); openEdit(item); }}
+                                title="Edit"
+                              >
+                                <HiOutlinePencil />
+                              </button>
+                              <button
+                                className="btn btn-danger btn-sm"
+                                onClick={(e) => { e.stopPropagation(); handleDelete(item._id); }}
+                                title="Delete"
+                              >
+                                <HiOutlineTrash />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))
                 )}
               </tbody>
             </table>
@@ -253,7 +278,81 @@ export default function ItemsPage() {
         </div>
       </div>
 
-      {/* ── Modal ──────────────────────────────── */}
+      <style>{`
+        .item-details-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+        .item-details-grid p {
+          margin: 0;
+          font-size: var(--font-sm);
+        }
+        .item-details-grid span.label {
+          color: var(--text-muted);
+          font-weight: 600;
+          display: block;
+          margin-bottom: 0.25rem;
+          font-size: var(--font-xs);
+          text-transform: uppercase;
+        }
+        .item-details-grid span.value {
+          color: var(--text-primary);
+        }
+      `}</style>
+
+      {/* ── Details Modal ──────────────────────── */}
+      {viewing && (
+        <div className="modal-overlay" onClick={() => setViewing(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Item Details</h2>
+              <button className="btn btn-ghost btn-icon" onClick={() => setViewing(null)}>
+                <HiOutlineX />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="item-details-grid">
+                <p><span className="label">SAP ID</span><span className="value">{viewing.sap_id}</span></p>
+                <p><span className="label">Title</span><span className="value">{viewing.title}</span></p>
+                <p><span className="label">Category</span><span className="value">{viewing.category || '—'}</span></p>
+                <p><span className="label">Capacity</span><span className="value">{viewing.capacity || '—'}</span></p>
+                <p>
+                  <span className="label">Quantity</span>
+                  <span className="value">
+                    <span className={`badge ${viewing.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
+                      {viewing.quantity}
+                    </span>
+                  </span>
+                </p>
+                <p><span className="label">Location</span><span className="value">{viewing.location || '—'}</span></p>
+                <p><span className="label">Make</span><span className="value">{viewing.make || '—'}</span></p>
+                <p><span className="label">Owner</span><span className="value">{viewing.owner || '—'}</span></p>
+                <p><span className="label">Certificate No.</span><span className="value">{viewing.certificate_no || '—'}</span></p>
+                <p><span className="label">UMC</span><span className="value">{viewing.umc || '—'}</span></p>
+                <p><span className="label">Previous Due Date</span><span className="value">{formatDate(viewing.prev_due_date)}</span></p>
+                <p>
+                  <span className="label">Next Due Date</span>
+                  <span className="value">
+                    {viewing.next_due_date ? (
+                      <span className={`badge ${isOverdue(viewing.next_due_date) ? 'badge-red' : 'badge-green'}`}>
+                        {formatDate(viewing.next_due_date)}
+                      </span>
+                    ) : '—'}
+                  </span>
+                </p>
+                <p style={{ gridColumn: '1 / -1' }}><span className="label">Description</span><span className="value">{viewing.description || '—'}</span></p>
+                <p style={{ gridColumn: '1 / -1' }}><span className="label">Remarks</span><span className="value">{viewing.remarks || '—'}</span></p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-ghost" onClick={() => setViewing(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit/Create Modal ──────────────────── */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <div className="modal modal-lg" onClick={(e) => e.stopPropagation()}>
@@ -291,17 +390,28 @@ export default function ItemsPage() {
                   </div>
                 </div>
 
-                <div className="form-row">
+                <div className="form-row-4">
                   <div className="form-group">
-                    <label className="form-label">Capacity *</label>
+                    <label className="form-label">Category</label>
+                    <select
+                      className="form-select"
+                      name="category"
+                      value={form.category}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select...</option>
+                      {['C1', 'C2', 'C3', 'C4', 'C5'].map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Capacity</label>
                     <input
                       className="form-input"
                       name="capacity"
-                      type="number"
-                      min="0"
                       value={form.capacity}
                       onChange={handleChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -327,7 +437,7 @@ export default function ItemsPage() {
                   </div>
                 </div>
 
-                <div className="form-row">
+                <div className="form-row-4">
                   <div className="form-group">
                     <label className="form-label">Make</label>
                     <input
@@ -355,6 +465,15 @@ export default function ItemsPage() {
                       onChange={handleChange}
                     />
                   </div>
+                  <div className="form-group">
+                    <label className="form-label">UMC</label>
+                    <input
+                      className="form-input"
+                      name="umc"
+                      value={form.umc}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
 
                 <div className="form-row">
@@ -374,16 +493,8 @@ export default function ItemsPage() {
                       className="form-input"
                       name="next_due_date"
                       type="date"
+                      min={form.prev_due_date}
                       value={form.next_due_date}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">UMC</label>
-                    <input
-                      className="form-input"
-                      name="umc"
-                      value={form.umc}
                       onChange={handleChange}
                     />
                   </div>

@@ -71,6 +71,13 @@ const issueSchema = new Schema(
     return_date: {
       type: Date,
       default: null, // null means at least some items still issued
+      validate: {
+        validator: function (value) {
+          if (!value) return true;
+          return value >= this.issue_date;
+        },
+        message: 'Return date cannot be before issue date',
+      },
     },
     issuer_p_no: {
       type: String,

@@ -52,6 +52,13 @@ const itemSchema = new Schema(
     next_due_date: {
       type: Date,
       default: null,
+      validate: {
+        validator: function (value) {
+          if (!value || !this.prev_due_date) return true;
+          return value >= this.prev_due_date;
+        },
+        message: 'Next due date cannot be before prev due date',
+      },
     },
     location: {
       type: String,

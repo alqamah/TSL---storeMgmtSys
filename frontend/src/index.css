@@ -265,7 +265,7 @@ a:hover {
   font-size: var(--font-sm);
   font-weight: 600;
   white-space: nowrap;
-  overflow: hidden;
+  /* overflow: hidden; */
   text-overflow: ellipsis;
 }
 
@@ -445,6 +445,22 @@ a:hover {
   gap: var(--space-4);
 }
 
+.form-row-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .form-row-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .form-row-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-error {
   font-size: var(--font-xs);
   color: var(--accent-red);
@@ -560,7 +576,7 @@ a:hover {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .table-toolbar {
@@ -602,6 +618,28 @@ a:hover {
 
 .table-search input::placeholder {
   color: var(--text-muted);
+}
+
+.table-filters-row {
+  display: flex;
+  gap: var(--space-2);
+  flex: 2;
+  min-width: 300px;
+}
+
+.select-sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-xs);
+  height: 36px;
+  background-color: var(--bg-input);
+}
+
+@media (max-width: 768px) {
+  .table-filters-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .table-wrapper {
@@ -683,6 +721,7 @@ tbody tr:hover {
 .modal-overlay {
   position: fixed;
   inset: 0;
+  width: 100%;
   background: var(--bg-modal);
   display: flex;
   align-items: center;
@@ -690,6 +729,7 @@ tbody tr:hover {
   z-index: 1000;
   padding: var(--space-4);
   animation: fadeIn 200ms ease;
+  overflow: auto; /* Changed scroll to auto */
 }
 
 .modal {
@@ -697,16 +737,24 @@ tbody tr:hover {
   border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 600px;
-  max-height: 85vh;
+  max-width: 900px; /* Increased max-width to allow more horizontal items */
+  max-height: 90vh; /* Set a max-height to ensure scrolling works */
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
   animation: slideUp 250ms ease;
+  overflow: hidden;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0; /* Important for flex child with overflow */
 }
 
 .modal-lg {
-  max-width: 800px;
+  max-width: 1000px; /* Even wider for large modals */
 }
 
 .modal-header {
@@ -715,6 +763,7 @@ tbody tr:hover {
   justify-content: space-between;
   padding: var(--space-6);
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -729,6 +778,7 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  flex: 1;
 }
 
 .modal-footer {
@@ -738,6 +788,7 @@ tbody tr:hover {
   gap: var(--space-3);
   padding: var(--space-4) var(--space-6);
   border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 /* ==========================================

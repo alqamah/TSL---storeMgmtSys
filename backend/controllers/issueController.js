@@ -66,6 +66,7 @@ exports.create = async (req, res, next) => {
       vendor_supervisor_gatepass_no,
       job_location,
       issue_date,
+      return_date,
       issuer_p_no,
     } = req.body;
 
@@ -86,14 +87,7 @@ exports.create = async (req, res, next) => {
       }
     }
 
-    // Decrement quantity for each item
-    for (const entry of items) {
-      await Item.findByIdAndUpdate(entry.item, {
-        $inc: { quantity: -entry.quantity },
-      });
-    }
-
-    const issue = await Issue.create({
+    const newIssue = new Issue({
       items: items.map((i) => ({
         item: i.item,
         quantity: i.quantity,
@@ -106,8 +100,21 @@ exports.create = async (req, res, next) => {
       vendor_supervisor_gatepass_no,
       job_location,
       issue_date: issue_date || Date.now(),
+      return_date: return_date || null,
       issuer_p_no,
     });
+
+    // Validate issue explicitly before altering stock
+    await newIssue.validate();
+
+    // Decrement quantity for each item (safe to run now)
+    for (const entry of items) {
+      await Item.findByIdAndUpdate(entry.item, {
+        $inc: { quantity: -entry.quantity },
+      });
+    }
+
+    const issue = await newIssue.save();
 
     const populated = await issue.populate([
       { path: 'items.item', select: 'sap_id title location quantity' },
@@ -132,6 +139,9 @@ exports.returnItem = async (req, res, next) => {
     }
 
     const returns = req.body.returns;
+    
+    // Track intent, don't execute stock changes yet
+    const stockUpdates = [];
 
     if (returns && returns.length) {
       // Partial return — return specific items/quantities
@@ -153,11 +163,7 @@ exports.returnItem = async (req, res, next) => {
         }
 
         issueItem.returned_quantity += ret.quantity;
-
-        // Increment item stock back
-        await Item.findByIdAndUpdate(ret.item, {
-          $inc: { quantity: ret.quantity },
-        });
+        stockUpdates.push({ itemId: ret.item, quantityToAdd: ret.quantity });
       }
     } else {
       // Full return — return everything remaining
@@ -165,9 +171,7 @@ exports.returnItem = async (req, res, next) => {
         const remaining = issueItem.quantity - issueItem.returned_quantity;
         if (remaining > 0) {
           issueItem.returned_quantity = issueItem.quantity;
-          await Item.findByIdAndUpdate(issueItem.item, {
-            $inc: { quantity: remaining },
-          });
+          stockUpdates.push({ itemId: issueItem.item, quantityToAdd: remaining });
         }
       }
     }
@@ -178,6 +182,16 @@ exports.returnItem = async (req, res, next) => {
     );
     if (fullyReturned) {
       issue.return_date = req.body.return_date || Date.now();
+    }
+
+    // Validate the updated issue schema constraints first 
+    await issue.validate();
+
+    // Now safe to apply external stock updates
+    for (const update of stockUpdates) {
+      await Item.findByIdAndUpdate(update.itemId, {
+        $inc: { quantity: update.quantityToAdd },
+      });
     }
 
     await issue.save();
