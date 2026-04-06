@@ -32,10 +32,36 @@ const issueSchema = new Schema(
         message: 'At least one item is required',
       },
     },
-    employee: {
-      type: Schema.Types.ObjectId,
-      ref: 'Employee',
-      required: [true, 'Employee reference is required'],
+    employee_p_no: {
+      type: String,
+      required: [true, 'Employee P.No is required'],
+      trim: true,
+      match: [/^[A-Za-z0-9]{6}$/, 'Employee P.No must be exactly 6 alphanumeric characters'],
+    },
+    employee_name: {
+      type: String,
+      required: [true, 'Employee Name is required'],
+      trim: true,
+    },
+    employee_phone: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      match: [/^\d{10}$/, 'Phone must be exactly 10 digits'],
+    },
+    vendor_supervisor_name: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    vendor_supervisor_gatepass_no: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    job_location: {
+      type: String,
+      trim: true,
+      default: '',
     },
     issue_date: {
       type: Date,
@@ -59,7 +85,8 @@ const issueSchema = new Schema(
 
 // Index to find active issues
 issueSchema.index({ return_date: 1 });
-issueSchema.index({ employee: 1 });
+issueSchema.index({ employee_p_no: 1 });
+issueSchema.index({ employee_name: 'text', employee_p_no: 'text', job_location: 'text' });
 issueSchema.index({ 'items.item': 1 });
 
 // Virtual: check if the issue is fully returned

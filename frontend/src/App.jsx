@@ -4,7 +4,7 @@ import { ToastProvider } from './context/ToastContext';
 import Layout from './components/Layout';
 import DashboardPage from './pages/DashboardPage';
 import ItemsPage from './pages/ItemsPage';
-import EmployeesPage from './pages/EmployeesPage';
+
 import IssuesPage from './pages/IssuesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -23,7 +23,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/items" element={<ItemsPage />} />
-              <Route path="/employees" element={<EmployeesPage />} />
+
               <Route path="/issues" element={<IssuesPage />} />
             </Route>
           </Routes>

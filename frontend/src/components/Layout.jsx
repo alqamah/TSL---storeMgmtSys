@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   HiOutlineViewGrid,
   HiOutlineCube,
-  HiOutlineUsers,
+
   HiOutlineClipboardList,
   HiOutlineLogout,
   HiOutlineLogin,
@@ -21,7 +21,7 @@ export default function Layout() {
   const navItems = [
     { to: '/', icon: <HiOutlineViewGrid />, label: 'Dashboard' },
     { to: '/items', icon: <HiOutlineCube />, label: 'Items' },
-    { to: '/employees', icon: <HiOutlineUsers />, label: 'Employees' },
+
     { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issues' },
   ];
 

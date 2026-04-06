@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { issuesAPI, itemsAPI, employeesAPI } from '../api';
+import { issuesAPI, itemsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import {
@@ -21,9 +21,14 @@ export default function IssuesPage() {
   // Issue modal state
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [allItems, setAllItems] = useState([]);
-  const [allEmployees, setAllEmployees] = useState([]);
+
   const [issueForm, setIssueForm] = useState({
-    employee: '',
+    employee_p_no: '',
+    employee_name: '',
+    employee_phone: '',
+    vendor_supervisor_name: '',
+    vendor_supervisor_gatepass_no: '',
+    job_location: '',
     issuer_p_no: '',
     items: [{ item: '', quantity: 1 }],
   });
@@ -52,20 +57,21 @@ export default function IssuesPage() {
 
   const openIssueModal = async () => {
     try {
-      const [itemsRes, empRes] = await Promise.all([
-        itemsAPI.getAll(),
-        employeesAPI.getAll(),
-      ]);
+      const itemsRes = await itemsAPI.getAll();
       setAllItems(itemsRes.data);
-      setAllEmployees(empRes.data);
       setIssueForm({
-        employee: '',
+        employee_p_no: '',
+        employee_name: '',
+        employee_phone: '',
+        vendor_supervisor_name: '',
+        vendor_supervisor_gatepass_no: '',
+        job_location: '',
         issuer_p_no: user?.p_no || '',
         items: [{ item: '', quantity: 1 }],
       });
       setIssueModalOpen(true);
     } catch {
-      toast.error('Failed to load data');
+      toast.error('Failed to load items');
     }
   };
 
@@ -94,7 +100,12 @@ export default function IssuesPage() {
     e.preventDefault();
     try {
       await issuesAPI.create({
-        employee: issueForm.employee,
+        employee_p_no: issueForm.employee_p_no,
+        employee_name: issueForm.employee_name,
+        employee_phone: issueForm.employee_phone,
+        vendor_supervisor_name: issueForm.vendor_supervisor_name,
+        vendor_supervisor_gatepass_no: issueForm.vendor_supervisor_gatepass_no,
+        job_location: issueForm.job_location,
         issuer_p_no: issueForm.issuer_p_no,
         items: issueForm.items.map((i) => ({
           item: i.item,
@@ -201,7 +212,7 @@ export default function IssuesPage() {
                   issues.map((issue) => (
                     <tr key={issue._id}>
                       <td style={{ color: 'var(--text-primary)' }}>
-                        {issue.employee?.name || '—'}
+                        {issue.employee_name || '—'}
                         <br />
                         <span
                           style={{
@@ -209,7 +220,7 @@ export default function IssuesPage() {
                             color: 'var(--text-muted)',
                           }}
                         >
-                          {issue.employee?.p_no}
+                          {issue.employee_p_no}
                         </span>
                       </td>
                       <td>
@@ -281,23 +292,85 @@ export default function IssuesPage() {
               <div className="modal-body">
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">Employee *</label>
-                    <select
-                      className="form-select"
-                      value={issueForm.employee}
+                    <label className="form-label">Employee P.No *</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.employee_p_no}
                       onChange={(e) =>
-                        setIssueForm({ ...issueForm, employee: e.target.value })
+                        setIssueForm({ ...issueForm, employee_p_no: e.target.value })
                       }
+                      placeholder="6 characters"
+                      maxLength={6}
                       required
-                    >
-                      <option value="">Select employee...</option>
-                      {allEmployees.map((emp) => (
-                        <option key={emp._id} value={emp._id}>
-                          {emp.name} ({emp.p_no})
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
+                  <div className="form-group">
+                    <label className="form-label">Employee Name *</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.employee_name}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, employee_name: e.target.value })
+                      }
+                      placeholder="Full name"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Employee Phone *</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.employee_phone}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, employee_phone: e.target.value })
+                      }
+                      placeholder="10 digits"
+                      maxLength={10}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Job Location</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.job_location}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, job_location: e.target.value })
+                      }
+                      placeholder="Work area"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Vendor Supervisor</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.vendor_supervisor_name}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, vendor_supervisor_name: e.target.value })
+                      }
+                      placeholder="Supervisor name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Supervisor Gatepass No</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.vendor_supervisor_gatepass_no}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, vendor_supervisor_gatepass_no: e.target.value })
+                      }
+                      placeholder="Gatepass number"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Issuer P.No *</label>
                     <input
@@ -310,6 +383,7 @@ export default function IssuesPage() {
                       required
                     />
                   </div>
+                  <div className="form-group" />
                 </div>
 
                 <div style={{ marginTop: '1rem' }}>
@@ -424,9 +498,9 @@ export default function IssuesPage() {
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                 Returning items issued to{' '}
                 <strong style={{ color: 'var(--text-primary)' }}>
-                  {returningIssue.employee?.name}
+                  {returningIssue.employee_name}
                 </strong>{' '}
-                ({returningIssue.employee?.p_no})
+                ({returningIssue.employee_p_no})
               </p>
 
               <div className="table-wrapper" style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}>

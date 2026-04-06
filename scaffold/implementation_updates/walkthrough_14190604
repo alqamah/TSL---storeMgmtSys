@@ -1,0 +1,29 @@
+# Employee Data Denormalization
+
+I have successfully denormalized the employee data into the `Issue` model and removed the standalone employee management system. This simplifies the item issuance process by allowing user-entered employee details directly during issuance.
+
+## Changes Made
+
+### Backend
+- **Model Update**: Modified `backend/models/Issue.js` to include fields for `employee_p_no`, `employee_name`, `employee_phone`, `vendor_supervisor_name`, `vendor_supervisor_gatepass_no`, and `job_location`.
+- **Controller Update**: Updated `backend/controllers/issueController.js` to handle saving these details when creating an issue and to remove unnecessary population of the deleted `Employee` model.
+- **Cleanup**: Deleted `backend/models/Employee.js`, `backend/controllers/employeeController.js`, and `backend/routes/employeeRoutes.js`.
+- **Server Update**: Removed employee route mounting from `backend/server.js`.
+
+### Frontend
+- **API Update**: Removed `employeesAPI` from `frontend/src/api.js`.
+- **Navigation Update**: Removed the "Employees" link from `Layout.jsx` and the corresponding route in `App.jsx`.
+- **Issues Page Update**:
+    - Replaced the employee selection dropdown with input fields for all employee details.
+    - Updated the issues table and return modal to display employee information from the new embedded fields.
+- **Cleanup**: Deleted `frontend/src/pages/EmployeesPage.jsx`.
+
+## Verification Results
+
+- Verified that all employee-related management code is removed.
+- Verified that the `Issue` schema correctly stores employee details.
+- Verified that the "Issue Items" form correctly submits all employee fields.
+- Verified that the UI displays employee name and P.No correctly from the new fields.
+
+> [!TIP]
+> The `employee_p_no` must be exactly 6 alphanumeric characters and `employee_phone` must be exactly 10 digits as per the new validation rules in the schema.

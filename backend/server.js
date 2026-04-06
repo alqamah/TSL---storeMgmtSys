@@ -12,12 +12,12 @@ app.use(express.json());
 // ── Routes ───────────────────────────────────────────────
 const authRoutes     = require('./routes/authRoutes');
 const itemRoutes     = require('./routes/itemRoutes');
-const employeeRoutes = require('./routes/employeeRoutes');
+
 const issueRoutes    = require('./routes/issueRoutes');
 
 app.use('/api/auth',      authRoutes);
 app.use('/api/items',     itemRoutes);
-app.use('/api/employees', employeeRoutes);
+
 app.use('/api/issues',    issueRoutes);
 
 // Health check

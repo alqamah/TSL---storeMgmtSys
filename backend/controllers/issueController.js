@@ -10,11 +10,15 @@ exports.getAll = async (req, res, next) => {
     if (status === 'active') filter.return_date = null;
     if (status === 'returned') filter.return_date = { $ne: null };
     if (item) filter['items.item'] = item;
-    if (employee) filter.employee = employee;
+    if (employee) {
+      filter.$or = [
+        { employee_name: new RegExp(employee, 'i') },
+        { employee_p_no: new RegExp(employee, 'i') },
+      ];
+    }
 
     const issues = await Issue.find(filter)
       .populate('items.item', 'sap_id title location quantity')
-      .populate('employee', 'p_no name phone job_location')
       .sort({ issue_date: -1 });
 
     res.json(issues);
@@ -28,7 +32,6 @@ exports.getActive = async (_req, res, next) => {
   try {
     const issues = await Issue.find({ return_date: null })
       .populate('items.item', 'sap_id title location quantity')
-      .populate('employee', 'p_no name phone job_location')
       .sort({ issue_date: -1 });
 
     res.json(issues);
@@ -41,8 +44,7 @@ exports.getActive = async (_req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const issue = await Issue.findById(req.params.id)
-      .populate('items.item')
-      .populate('employee');
+      .populate('items.item');
 
     if (!issue) return res.status(404).json({ error: 'Issue record not found' });
     res.json(issue);
@@ -52,10 +54,20 @@ exports.getById = async (req, res, next) => {
 };
 
 // POST /api/issues — Issue items to an employee
-// Body: { items: [{ item: <itemId>, quantity: <n> }, ...], employee, issuer_p_no, issue_date? }
+// Body: { items: [{ item: <itemId>, quantity: <n> }, ...], employee_p_no, employee_name, employee_phone, ..., issuer_p_no, issue_date? }
 exports.create = async (req, res, next) => {
   try {
-    const { items, employee, issue_date, issuer_p_no } = req.body;
+    const {
+      items,
+      employee_p_no,
+      employee_name,
+      employee_phone,
+      vendor_supervisor_name,
+      vendor_supervisor_gatepass_no,
+      job_location,
+      issue_date,
+      issuer_p_no,
+    } = req.body;
 
     if (!items || !items.length) {
       return res.status(400).json({ error: 'At least one item is required' });
@@ -87,14 +99,18 @@ exports.create = async (req, res, next) => {
         quantity: i.quantity,
         returned_quantity: 0,
       })),
-      employee,
+      employee_p_no,
+      employee_name,
+      employee_phone,
+      vendor_supervisor_name,
+      vendor_supervisor_gatepass_no,
+      job_location,
       issue_date: issue_date || Date.now(),
       issuer_p_no,
     });
 
     const populated = await issue.populate([
       { path: 'items.item', select: 'sap_id title location quantity' },
-      { path: 'employee', select: 'p_no name phone' },
     ]);
 
     res.status(201).json(populated);
@@ -168,7 +184,6 @@ exports.returnItem = async (req, res, next) => {
 
     const populated = await issue.populate([
       { path: 'items.item', select: 'sap_id title location quantity' },
-      { path: 'employee', select: 'p_no name phone' },
     ]);
 
     res.json({
