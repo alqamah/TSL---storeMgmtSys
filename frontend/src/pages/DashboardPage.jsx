@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { itemsAPI, employeesAPI, issuesAPI } from '../api';
+import { itemsAPI, issuesAPI } from '../api';
 import {
   HiOutlineCube,
   HiOutlineUsers,
@@ -25,9 +25,8 @@ export default function DashboardPage() {
 
   const loadDashboard = async () => {
     try {
-      const [itemsRes, employeesRes, activeRes, allIssuesRes] = await Promise.all([
+      const [itemsRes, activeRes, allIssuesRes] = await Promise.all([
         itemsAPI.getAll(),
-        employeesAPI.getAll(),
         issuesAPI.getActive(),
         issuesAPI.getAll(),
       ]);
@@ -38,9 +37,12 @@ export default function DashboardPage() {
         (item) => item.next_due_date && new Date(item.next_due_date) < now
       ).length;
 
+      // Count unique employees from all issues
+      const uniqueEmps = new Set(allIssuesRes.data.map(i => i.employee_p_no)).size;
+
       setStats({
         items: itemsRes.data.length,
-        employees: employeesRes.data.length,
+        employees: uniqueEmps,
         activeIssues: activeRes.data.length,
         overdueItems: overdueCount,
       });
@@ -153,10 +155,10 @@ export default function DashboardPage() {
                   recentIssues.map((issue) => (
                     <tr key={issue._id}>
                       <td style={{ color: 'var(--text-primary)' }}>
-                        {issue.employee?.name || '—'}
+                        {issue.employee_name || '—'}
                         <br />
                         <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                          {issue.employee?.p_no}
+                          {issue.employee_p_no}
                         </span>
                       </td>
                       <td>

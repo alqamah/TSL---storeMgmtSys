@@ -14,6 +14,10 @@ const itemSchema = new Schema(
       required: [true, 'Title is required'],
       trim: true,
     },
+    category: {
+      type: String,
+      trim: true,
+    },
     capacity: {
       type: Number,
       required: [true, 'Capacity is required'],
