@@ -68,6 +68,17 @@ const issueSchema = new Schema(
       required: [true, 'Issue date is required'],
       default: Date.now,
     },
+    expected_return_date: {
+      type: Date,
+      default: null,
+      validate: {
+        validator: function (value) {
+          if (!value) return true;
+          return value >= this.issue_date;
+        },
+        message: 'Expected return date cannot be before issue date',
+      },
+    },
     return_date: {
       type: Date,
       default: null, // null means at least some items still issued

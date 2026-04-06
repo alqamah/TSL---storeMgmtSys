@@ -59,4 +59,5 @@ export const issuesAPI = {
   getById: (id) => api.get(`/issues/${id}`),
   create: (data) => api.post('/issues', data),
   returnItem: (id, data) => api.put(`/issues/${id}/return`, data),
+  delete: (id) => api.delete(`/issues/${id}`),
 };

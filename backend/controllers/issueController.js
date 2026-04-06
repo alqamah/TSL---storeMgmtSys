@@ -66,7 +66,7 @@ exports.create = async (req, res, next) => {
       vendor_supervisor_gatepass_no,
       job_location,
       issue_date,
-      return_date,
+      expected_return_date,
       issuer_p_no,
     } = req.body;
 
@@ -100,7 +100,7 @@ exports.create = async (req, res, next) => {
       vendor_supervisor_gatepass_no,
       job_location,
       issue_date: issue_date || Date.now(),
-      return_date: return_date || null,
+      expected_return_date: expected_return_date || null,
       issuer_p_no,
     });
 
@@ -206,6 +206,30 @@ exports.returnItem = async (req, res, next) => {
         : 'Partial return recorded',
       issue: populated,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// DELETE /api/issues/:id — Delete an issue and restore stock
+exports.deleteIssue = async (req, res, next) => {
+  try {
+    const issue = await Issue.findById(req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue record not found' });
+
+    // Restore stock for items that were issued but not yet returned
+    for (const issueItem of issue.items) {
+      const quantityToRestore = issueItem.quantity - issueItem.returned_quantity;
+      if (quantityToRestore > 0) {
+        await Item.findByIdAndUpdate(issueItem.item, {
+          $inc: { quantity: quantityToRestore },
+        });
+      }
+    }
+
+    await Issue.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Issue deleted successfully' });
   } catch (err) {
     next(err);
   }

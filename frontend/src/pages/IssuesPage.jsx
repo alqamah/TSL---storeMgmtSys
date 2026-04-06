@@ -31,7 +31,7 @@ export default function IssuesPage() {
     job_location: '',
     issuer_p_no: '',
     issue_date: new Date().toISOString().split('T')[0],
-    return_date: '',
+    expected_return_date: '',
     items: [{ item: '', quantity: 1 }],
   });
 
@@ -70,7 +70,7 @@ export default function IssuesPage() {
         job_location: '',
         issuer_p_no: user?.p_no || '',
         issue_date: new Date().toISOString().split('T')[0],
-        return_date: '',
+        expected_return_date: '',
         items: [{ item: '', quantity: 1 }],
       });
       setIssueModalOpen(true);
@@ -102,8 +102,8 @@ export default function IssuesPage() {
 
   const handleIssueSubmit = async (e) => {
     e.preventDefault();
-    if (issueForm.return_date && new Date(issueForm.return_date) < new Date(issueForm.issue_date)) {
-      toast.error('Return date cannot be before issue date');
+    if (issueForm.expected_return_date && new Date(issueForm.expected_return_date) < new Date(issueForm.issue_date)) {
+      toast.error('Expected return date cannot be before issue date');
       return;
     }
 
@@ -121,7 +121,7 @@ export default function IssuesPage() {
           quantity: Number(i.quantity),
         })),
         issue_date: issueForm.issue_date,
-        return_date: issueForm.return_date || null,
+        expected_return_date: issueForm.expected_return_date || null,
       });
       toast.success('Items issued successfully');
       setIssueModalOpen(false);
@@ -146,6 +146,20 @@ export default function IssuesPage() {
     } catch (err) {
       const data = err.response?.data;
       toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Return failed'));
+    }
+  };
+
+  const handleDelete = async (issueId) => {
+    if (!window.confirm('Are you sure you want to delete this issue? Stock will be restored for un-returned items.')) {
+      return;
+    }
+    try {
+      await issuesAPI.delete(issueId);
+      toast.success('Issue deleted and stock restored');
+      loadIssues();
+    } catch (err) {
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Deletion failed'));
     }
   };
 
@@ -205,6 +219,7 @@ export default function IssuesPage() {
                   <th>Employee</th>
                   <th>Items Issued</th>
                   <th>Issue Date</th>
+                  <th>Exp. Return</th>
                   <th>Return Date</th>
                   <th>Status</th>
                   <th>Issuer</th>
@@ -256,6 +271,7 @@ export default function IssuesPage() {
                         ))}
                       </td>
                       <td>{formatDate(issue.issue_date)}</td>
+                      <td>{formatDate(issue.expected_return_date)}</td>
                       <td>{formatDate(issue.return_date)}</td>
                       <td>
                         {issue.return_date ? (
@@ -267,15 +283,25 @@ export default function IssuesPage() {
                       <td>{issue.issuer_p_no}</td>
                       {user && (
                         <td>
-                          {!issue.return_date && (
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            {!issue.return_date && (
+                              <button
+                                className="btn btn-success btn-sm"
+                                onClick={() => openReturnModal(issue)}
+                                title="Return"
+                              >
+                                <HiOutlineReply /> Return
+                              </button>
+                            )}
                             <button
-                              className="btn btn-success btn-sm"
-                              onClick={() => openReturnModal(issue)}
-                              title="Return"
+                              className="btn btn-ghost btn-sm btn-icon"
+                              style={{ color: 'var(--red-500)' }}
+                              onClick={() => handleDelete(issue._id)}
+                              title="Delete"
                             >
-                              <HiOutlineReply /> Return
+                              <HiOutlineTrash />
                             </button>
-                          )}
+                          </div>
                         </td>
                       )}
                     </tr>
@@ -409,14 +435,14 @@ export default function IssuesPage() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Return Date</label>
+                    <label className="form-label">Expected Return</label>
                     <input
                       className="form-input"
                       type="date"
                       min={issueForm.issue_date}
-                      value={issueForm.return_date}
+                      value={issueForm.expected_return_date}
                       onChange={(e) =>
-                        setIssueForm({ ...issueForm, return_date: e.target.value })
+                        setIssueForm({ ...issueForm, expected_return_date: e.target.value })
                       }
                     />
                   </div>
