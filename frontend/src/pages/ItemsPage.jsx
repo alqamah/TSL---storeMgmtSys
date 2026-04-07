@@ -53,7 +53,8 @@ export default function ItemsPage() {
       const res = await itemsAPI.getAll(query ? { search: query } : {});
       setItems(res.data);
     } catch (err) {
-      toast.error('Failed to load items');
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to load items'));
     } finally {
       setLoading(false);
     }

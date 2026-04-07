@@ -50,8 +50,9 @@ export default function IssuesPage() {
       if (filter === 'returned') params.status = 'returned';
       const res = await issuesAPI.getAll(params);
       setIssues(res.data);
-    } catch {
-      toast.error('Failed to load issues');
+    } catch (err) {
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to load issues'));
     } finally {
       setLoading(false);
     }
@@ -74,8 +75,9 @@ export default function IssuesPage() {
         items: [{ item: '', quantity: 1 }],
       });
       setIssueModalOpen(true);
-    } catch {
-      toast.error('Failed to load items');
+    } catch (err) {
+      const data = err.response?.data;
+      toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to load items'));
     }
   };
 
