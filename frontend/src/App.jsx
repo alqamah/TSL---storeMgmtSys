@@ -2,9 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Layout from './components/Layout';
-import DashboardPage from './pages/DashboardPage';
 import ItemsPage from './pages/ItemsPage';
-
+import { Navigate } from 'react-router-dom';
 import IssuesPage from './pages/IssuesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -21,7 +20,7 @@ function App() {
 
             {/* Main app — with sidebar */}
             <Route element={<Layout />}>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/" element={<Navigate to="/items" replace />} />
               <Route path="/items" element={<ItemsPage />} />
 
               <Route path="/issues" element={<IssuesPage />} />

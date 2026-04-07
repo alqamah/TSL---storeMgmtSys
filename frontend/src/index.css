@@ -106,6 +106,7 @@ a {
   text-decoration: none;
   transition: color var(--transition-fast);
 }
+
 a:hover {
   color: var(--accent-blue-hover);
 }
@@ -115,13 +116,16 @@ a:hover {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-default);
   border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
@@ -151,6 +155,10 @@ a:hover {
 .sidebar-header {
   padding: var(--space-6);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-header:hover {
+  border-color: var(--border-focus);
 }
 
 .sidebar-logo {
@@ -293,7 +301,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .page-title {
@@ -343,6 +351,7 @@ a:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
 }
+
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-blue-hover);
   box-shadow: var(--shadow-glow-blue);
@@ -352,6 +361,7 @@ a:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
 }
+
 .btn-success:hover:not(:disabled) {
   background: var(--accent-green-hover);
   box-shadow: var(--shadow-glow-green);
@@ -361,6 +371,7 @@ a:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
 }
+
 .btn-danger:hover:not(:disabled) {
   background: var(--accent-red-hover);
 }
@@ -370,6 +381,7 @@ a:hover {
   color: var(--text-secondary);
   border: 1px solid var(--border-default);
 }
+
 .btn-ghost:hover:not(:disabled) {
   background: var(--bg-card);
   color: var(--text-primary);
@@ -517,8 +529,7 @@ a:hover {
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
 }
 
 .stat-icon {
@@ -532,7 +543,11 @@ a:hover {
   flex-shrink: 0;
 }
 
-.stat-icon.blue, .stat-icon.green, .stat-icon.amber, .stat-icon.red, .stat-icon.purple {
+.stat-icon.blue,
+.stat-icon.green,
+.stat-icon.amber,
+.stat-icon.red,
+.stat-icon.purple {
   background: var(--bg-card-hover);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
@@ -679,7 +694,10 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-.badge-green, .badge-amber, .badge-red, .badge-blue {
+.badge-green,
+.badge-amber,
+.badge-red,
+.badge-blue {
   background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-default);
@@ -700,7 +718,8 @@ tbody tr:hover {
   z-index: 1000;
   padding: var(--space-4);
   animation: fadeIn 200ms ease;
-  overflow: auto; /* Changed scroll to auto */
+  overflow: auto;
+  /* Changed scroll to auto */
 }
 
 .modal {
@@ -708,8 +727,10 @@ tbody tr:hover {
   border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 900px; /* Increased max-width to allow more horizontal items */
-  max-height: 90vh; /* Set a max-height to ensure scrolling works */
+  max-width: 900px;
+  /* Increased max-width to allow more horizontal items */
+  max-height: 90vh;
+  /* Set a max-height to ensure scrolling works */
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
@@ -721,11 +742,13 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0; /* Important for flex child with overflow */
+  min-height: 0;
+  /* Important for flex child with overflow */
 }
 
 .modal-lg {
-  max-width: 1000px; /* Even wider for large modals */
+  max-width: 1000px;
+  /* Even wider for large modals */
 }
 
 .modal-header {
@@ -866,7 +889,9 @@ tbody tr:hover {
   min-width: 280px;
 }
 
-.toast-success, .toast-error, .toast-info {
+.toast-success,
+.toast-error,
+.toast-info {
   background: var(--bg-card);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
@@ -921,22 +946,43 @@ tbody tr:hover {
    ========================================== */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================

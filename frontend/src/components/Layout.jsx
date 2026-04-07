@@ -1,17 +1,53 @@
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { itemsAPI, issuesAPI } from '../api';
 import {
   HiOutlineViewGrid,
   HiOutlineCube,
-
   HiOutlineClipboardList,
   HiOutlineLogout,
   HiOutlineLogin,
+  HiOutlineExclamationCircle,
 } from 'react-icons/hi';
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [stats, setStats] = useState({
+    items: 0,
+    activeIssues: 0,
+    overdueItems: 0,
+  });
+
+  useEffect(() => {
+    if (user) {
+      loadStats();
+    }
+  }, [user]);
+
+  const loadStats = async () => {
+    try {
+      const [itemsRes, activeRes] = await Promise.all([
+        itemsAPI.getAll(),
+        issuesAPI.getActive(),
+      ]);
+
+      const now = new Date();
+      const overdueCount = itemsRes.data.filter(
+        (item) => item.next_due_date && new Date(item.next_due_date) < now
+      ).length;
+
+      setStats({
+        items: itemsRes.data.length,
+        activeIssues: activeRes.data.length,
+        overdueItems: overdueCount,
+      });
+    } catch (err) {
+      console.error('Stats load error:', err);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -19,16 +55,18 @@ export default function Layout() {
   };
 
   const navItems = [
-    { to: '/', icon: <HiOutlineViewGrid />, label: 'Dashboard' },
     { to: '/items', icon: <HiOutlineCube />, label: 'Items' },
-
     { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issues' },
   ];
 
   return (
     <div className="app-layout">
       <aside className="sidebar">
-        <div className="sidebar-header">
+        <div 
+          className="sidebar-header" 
+          onClick={() => navigate('/')} 
+          style={{ cursor: 'pointer' }}
+        >
           <div className="sidebar-logo">
             <div className="sidebar-logo-icon">📦</div>
             <div>
@@ -89,7 +127,7 @@ export default function Layout() {
       </aside>
 
       <main className="main-content">
-        <Outlet />
+        <Outlet context={{ stats }} />
       </main>
     </div>
   );

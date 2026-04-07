@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { issuesAPI, itemsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -12,10 +13,12 @@ import {
 } from 'react-icons/hi';
 
 export default function IssuesPage() {
+  const { stats } = useOutletContext() || { stats: {} };
   const { user } = useAuth();
   const toast = useToast();
   const [issues, setIssues] = useState([]);
   const [filter, setFilter] = useState('all'); // all | active | returned
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Issue modal state
@@ -177,6 +180,22 @@ export default function IssuesPage() {
     });
   };
 
+  const displayedIssues = issues.filter(issue => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const empName = (issue.employee_name || '').toLowerCase();
+    const empPno = (issue.employee_p_no || '').toLowerCase();
+    const issuerPno = (issue.issuer_p_no || '').toLowerCase();
+    const itemsStr = (issue.items || []).map(i => i.item?.title || '').join(' ').toLowerCase();
+    const remarks = (issue.remarks || '').toLowerCase();
+    
+    return empName.includes(q) || 
+           empPno.includes(q) || 
+           issuerPno.includes(q) || 
+           itemsStr.includes(q) || 
+           remarks.includes(q);
+  });
+
   if (loading) {
     return (
       <div className="loading-page">
@@ -193,6 +212,30 @@ export default function IssuesPage() {
             <h1 className="page-title">Issues</h1>
             <p className="page-subtitle">Track item issuance and returns</p>
           </div>
+          
+          {user && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem' }}>{stats?.items || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Total Items</div>
+                </div>
+              </div>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem' }}>{stats?.activeIssues || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Active Issues</div>
+                </div>
+              </div>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem', color: stats?.overdueItems > 0 ? 'var(--accent-red)' : 'inherit' }}>{stats?.overdueItems || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Overdue Items</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {user && (
             <button id="issue-item-btn" className="btn btn-primary" onClick={openIssueModal}>
               <HiOutlinePlus /> Issue Items
@@ -203,7 +246,7 @@ export default function IssuesPage() {
 
       <div className="page-body">
         <div className="table-container">
-          <div className="table-toolbar">
+          <div className="table-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               {['all', 'active', 'returned'].map((f) => (
                 <button
@@ -214,6 +257,18 @@ export default function IssuesPage() {
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
               ))}
+            </div>
+
+            <div style={{ position: 'relative', width: '250px' }}>
+              <HiOutlineSearch style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search issues..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: '32px', width: '100%', margin: 0 }}
+              />
             </div>
           </div>
 
@@ -233,7 +288,7 @@ export default function IssuesPage() {
                 </tr>
               </thead>
               <tbody>
-                {issues.length === 0 ? (
+                {displayedIssues.length === 0 ? (
                   <tr>
                     <td colSpan={user ? 8 : 7}>
                       <div className="empty-state">
@@ -243,7 +298,7 @@ export default function IssuesPage() {
                     </td>
                   </tr>
                 ) : (
-                  issues.map((issue) => (
+                  displayedIssues.map((issue) => (
                     <tr key={issue._id}>
                       <td style={{ color: 'var(--text-primary)' }}>
                         {issue.employee_name || '—'}

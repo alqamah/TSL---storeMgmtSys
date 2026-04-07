@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { itemsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -28,6 +29,7 @@ const emptyItem = {
 };
 
 export default function ItemsPage() {
+  const { stats } = useOutletContext() || { stats: {} };
   const { user } = useAuth();
   const toast = useToast();
   const [items, setItems] = useState([]);
@@ -163,6 +165,30 @@ export default function ItemsPage() {
             <h1 className="page-title">Items</h1>
             <p className="page-subtitle">{items.length} items in store</p>
           </div>
+          
+          {user && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem' }}>{stats?.items || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Total Items</div>
+                </div>
+              </div>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem' }}>{stats?.activeIssues || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Active Issues</div>
+                </div>
+              </div>
+              <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div className="stat-value" style={{ fontSize: '1.5rem', color: stats?.overdueItems > 0 ? 'var(--accent-red)' : 'inherit' }}>{stats?.overdueItems || 0}</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Overdue Items</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {user && (
             <button id="add-item-btn" className="btn btn-primary" onClick={openCreate}>
               <HiOutlinePlus /> Add Item
