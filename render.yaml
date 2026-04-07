@@ -1,0 +1,31 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: store-backend
+    runtime: node
+    plan: free # Free tier for hobbyists
+    buildCommand: npm install
+    startCommand: node server.js
+    rootDir: backend
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        generateValue: true # You will need to manually set this in the Render dashboard
+
+  # Frontend Static Site
+  - type: web
+    name: store-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          name: store-backend
+          type: web
+          property: url
+        suffix: /api
