@@ -49,16 +49,35 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/storeMgmtSys';
 
+// Enable Mongoose debug mode in development or if specifically requested
+if (process.env.DB_DEBUG === 'true') {
+  mongoose.set('debug', true);
+}
+
+// Global connection event listeners for better debugging
+mongoose.connection.on('connected', () => {
+  console.log('🔗  Mongoose connected to database successfully.');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('⚠️  Mongoose connection error:', err);
+});
+mongoose.connection.on('disconnected', () => {
+  console.warn('🔌  Mongoose disconnected from database.');
+});
+mongoose.connection.on('reconnected', () => {
+  console.log('🔄  Mongoose reconnected to database.');
+});
+
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    console.log('✅  MongoDB connected');
+    console.log('✅  MongoDB initial connection established.');
     app.listen(PORT, () => {
       console.log(`🚀  Server running on http://localhost:${PORT} or https://tsl-storemgmtsys.onrender.com`);
     });
   })
   .catch((err) => {
-    console.error('❌  MongoDB connection failed:', err.message);
+    console.error('❌  MongoDB initial connection failed:', err);
     process.exit(1);
   });
 
