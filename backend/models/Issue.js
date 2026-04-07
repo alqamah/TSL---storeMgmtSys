@@ -95,6 +95,11 @@ const issueSchema = new Schema(
       required: [true, 'Issuer P.No is required'],
       match: [/^[A-Za-z0-9]{6}$/, 'Issuer P.No must be exactly 6 alphanumeric characters'],
     },
+    remarks: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,

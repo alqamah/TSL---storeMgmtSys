@@ -68,6 +68,7 @@ exports.create = async (req, res, next) => {
       issue_date,
       expected_return_date,
       issuer_p_no,
+      remarks,
     } = req.body;
 
     if (!items || !items.length) {
@@ -102,6 +103,7 @@ exports.create = async (req, res, next) => {
       issue_date: issue_date || Date.now(),
       expected_return_date: expected_return_date || null,
       issuer_p_no,
+      remarks: remarks || '',
     });
 
     // Validate issue explicitly before altering stock

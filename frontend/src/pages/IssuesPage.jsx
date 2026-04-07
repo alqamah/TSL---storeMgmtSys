@@ -32,6 +32,7 @@ export default function IssuesPage() {
     issuer_p_no: '',
     issue_date: new Date().toISOString().split('T')[0],
     expected_return_date: '',
+    remarks: '',
     items: [{ item: '', quantity: 1 }],
   });
 
@@ -72,6 +73,7 @@ export default function IssuesPage() {
         issuer_p_no: user?.p_no || '',
         issue_date: new Date().toISOString().split('T')[0],
         expected_return_date: '',
+        remarks: '',
         items: [{ item: '', quantity: 1 }],
       });
       setIssueModalOpen(true);
@@ -118,6 +120,7 @@ export default function IssuesPage() {
         vendor_supervisor_gatepass_no: issueForm.vendor_supervisor_gatepass_no,
         job_location: issueForm.job_location,
         issuer_p_no: issueForm.issuer_p_no,
+        remarks: issueForm.remarks,
         items: issueForm.items.map((i) => ({
           item: i.item,
           quantity: Number(i.quantity),
@@ -224,6 +227,7 @@ export default function IssuesPage() {
                   <th>Exp. Return</th>
                   <th>Return Date</th>
                   <th>Status</th>
+                  <th>Remarks</th>
                   <th>Issuer</th>
                   {user && <th>Actions</th>}
                 </tr>
@@ -231,7 +235,7 @@ export default function IssuesPage() {
               <tbody>
                 {issues.length === 0 ? (
                   <tr>
-                    <td colSpan={user ? 7 : 6}>
+                    <td colSpan={user ? 8 : 7}>
                       <div className="empty-state">
                         <HiOutlineClipboardList className="icon" />
                         <p>No issues found</p>
@@ -282,6 +286,7 @@ export default function IssuesPage() {
                           <span className="badge badge-amber">Active</span>
                         )}
                       </td>
+                      <td>{issue.remarks || '—'}</td>
                       <td>{issue.issuer_p_no}</td>
                       {user && (
                         <td>
@@ -449,6 +454,20 @@ export default function IssuesPage() {
                     />
                   </div>
                   <div className="form-group" />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Remarks</label>
+                    <input
+                      className="form-input"
+                      value={issueForm.remarks}
+                      onChange={(e) =>
+                        setIssueForm({ ...issueForm, remarks: e.target.value })
+                      }
+                      placeholder="Optional remarks"
+                    />
+                  </div>
                 </div>
 
                 <div style={{ marginTop: '1rem' }}>
