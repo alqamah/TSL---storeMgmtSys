@@ -1,0 +1,132 @@
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 12
+  Style Category: Flat Design
+  Type: General
+  Keywords: 2D, minimalist, bold colors, no shadows, clean lines, simple shapes, typography-focused, modern, icon-heavy
+  Primary Colors: Solid bright: Red, Orange, Blue, Green, limited palette (4-6 max)
+  Secondary Colors: Complementary colors, muted secondaries, high saturation, clean accents
+  Effects & Animation: No gradients/shadows, simple hover (color/opacity shift), fast loading, clean transitions (150-200ms ease), minimal icons
+  Best For: Web apps, mobile apps, cross-platform, startup MVPs, user-friendly, SaaS, dashboards, corporate
+  Do Not Use For: Complex 3D, premium/luxury, artistic portfolios, immersive experiences, high-detail
+  Light Mode ✓: ✓ Full
+  Dark Mode ✓: ✓ Full
+  Performance: ⚡ Excellent
+  Accessibility: ✓ WCAG AAA
+  Mobile-Friendly: ✓ High
+  Conversion-Focused: ✓ High
+  Framework Compatibility: Tailwind 10/10, Bootstrap 10/10, MUI 9/10
+  Era/Origin: 2010s Modern
+  Complexity: Low
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 13
+  Style Category: Skeuomorphism
+  Type: General
+  Keywords: Realistic, texture, depth, 3D appearance, real-world metaphors, shadows, gradients, tactile, detailed, material
+  Primary Colors: Rich realistic: wood, leather, metal colors, detailed gradients (8-12 stops), metallic effects
+  Secondary Colors: Realistic lighting gradients, shadow variations (30-50% darker), texture overlays, material colors
+  Effects & Animation: Realistic shadows (layers), depth (perspective), texture details (noise, grain), realistic animations (300-500ms)
+  Best For: Legacy apps, gaming, immersive storytelling, premium products, luxury, realistic simulations, education
+  Do Not Use For: Modern enterprise, critical accessibility, low-performance, web (use Flat/Modern)
+  Light Mode ✓: ◐ Partial
+  Dark Mode ✓: ◐ Partial
+  Performance: ❌ Poor
+  Accessibility: ⚠ Textures reduce readability
+  Mobile-Friendly: ✗ Low
+  Conversion-Focused: ◐ Medium
+  Framework Compatibility: CSS-in-JS 7/10, Custom 8/10
+  Era/Origin: 2007-2012 iOS
+  Complexity: High
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 19
+  Style Category: Soft UI Evolution
+  Type: General
+  Keywords: Evolved soft UI, better contrast, modern aesthetics, subtle depth, accessibility-focused, improved shadows, hybrid
+  Primary Colors: Improved contrast pastels: Soft Blue #87CEEB, Soft Pink #FFB6C1, Soft Green #90EE90, better hierarchy
+  Secondary Colors: Better combinations, accessible secondary, supporting with improved contrast, modern accents
+  Effects & Animation: Improved shadows (softer than flat, clearer than neumorphism), modern (200-300ms), focus visible, WCAG AA/AAA
+  Best For: Modern enterprise apps, SaaS platforms, health/wellness, modern business tools, professional, hybrid
+  Do Not Use For: Extreme minimalism, critical performance, systems without modern OS
+  Light Mode ✓: ✓ Full
+  Dark Mode ✓: ✓ Full
+  Performance: ⚡ Excellent
+  Accessibility: ✓ WCAG AA+
+  Mobile-Friendly: ✓ High
+  Conversion-Focused: ✓ High
+  Framework Compatibility: Tailwind 9/10, MUI 9/10, Chakra 9/10
+  Era/Origin: 2020s Modern
+  Complexity: Medium
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 38
+  Style Category: Neubrutalism
+  Type: General
+  Keywords: Bold borders, black outlines, primary colors, thick shadows, no gradients, flat colors, 45° shadows, playful, Gen Z
+  Primary Colors: #FFEB3B (Yellow), #FF5252 (Red), #2196F3 (Blue), #000000 (Black borders)
+  Secondary Colors: Limited accent colors, high contrast combinations, no gradients allowed
+  Effects & Animation: box-shadow: 4px 4px 0 #000, border: 3px solid #000, no gradients, sharp corners (0px), bold typography
+  Best For: Gen Z brands, startups, creative agencies, Figma-style apps, Notion-style interfaces, tech blogs
+  Do Not Use For: Luxury brands, finance, healthcare, conservative industries (too playful)
+  Light Mode ✓: ✓ Full
+  Dark Mode ✓: ✓ Full
+  Performance: ⚡ Excellent
+  Accessibility: ✓ WCAG AAA
+  Mobile-Friendly: ✓ High
+  Conversion-Focused: ✓ High
+  Framework Compatibility: Tailwind 10/10, Bootstrap 8/10
+  Era/Origin: 2020s Modern
+  Complexity: Low
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 46
+  Style Category: Dimensional Layering
+  Type: General
+  Keywords: Depth, overlapping, z-index, layers, 3D, shadows, elevation, floating, cards, spatial hierarchy
+  Primary Colors: Neutral base (#FFFFFF, #F5F5F5, #E0E0E0) + brand accent for elevated elements
+  Secondary Colors: Shadow variations (sm/md/lg/xl), elevation colors, highlight colors for top layers
+  Effects & Animation: z-index stacking, box-shadow elevation (4 levels), transform: translateZ(), backdrop-filter, parallax
+  Best For: Dashboards, card layouts, modals, navigation, product showcases, SaaS interfaces
+  Do Not Use For: Print-style layouts, simple blogs, low-end devices, flat design requirements
+  Light Mode ✓: ✓ Full
+  Dark Mode ✓: ✓ Full
+  Performance: ⚠ Good
+  Accessibility: ⚠ Moderate (SR issues)
+  Mobile-Friendly: ✓ Good
+  Conversion-Focused: ✓ High
+  Framework Compatibility: Tailwind 10/10, MUI 10/10, Chakra 10/10
+  Era/Origin: 2020s Modern
+  Complexity: Medium
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\styles.csv
+  STT: 54
+  Style Category: Neubrutalism
+  Type: General
+  Keywords: Bold, ugly-cute, raw, high contrast, flat, hard shadows, distinct, playful, loud
+  Primary Colors: Pop Yellow #FFDE59, Bright Red #FF5757, Black #000000
+  Secondary Colors: Lavender #CBA6F7, Mint #76E0C2
+  Effects & Animation: Hard hover shifts (4px), marquee scrolling, jitter animations, bold borders
+  Best For: Design tools, creative agencies, Gen Z brands, personal blogs, gumroad-style
+  Do Not Use For: Banking, legal, healthcare, serious enterprise, elderly users
+  Light Mode ✓: ✓ Full
+  Dark Mode ✓: ✓ Full
+  Performance: ⚡ Excellent
+  Accessibility: ✓ WCAG AAA
+  Mobile-Friendly: ✓ High
+  Conversion-Focused: ✓ High
+  Framework Compatibility: Tailwind 10/10, Plain CSS 10/10
+  Era/Origin: 2020s Modern Retro
+  Complexity: Low
+--------------------
+Found in C:\Users\alqam\.gemini\antigravity\skills\ui-ux-pro-max\data\colors.csv
+  No: 90
+  Product Type: Architecture / Interior
+  Keywords: architecture, interior, design, luxury
+  Primary (Hex): #171717
+  Secondary (Hex): #404040
+  CTA (Hex): #D4AF37
+  Background (Hex): #FFFFFF
+  Text (Hex): #171717
+  Border (Hex): #E5E5E5
+  Notes: Monochrome + Gold Accent + High Imagery
+--------------------

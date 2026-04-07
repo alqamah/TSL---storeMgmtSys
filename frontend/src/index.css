@@ -8,35 +8,35 @@
 
 :root {
   /* ── Color Palette ───────────────────────────── */
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #111827;
-  --bg-card: #1a2235;
-  --bg-card-hover: #1f2a40;
-  --bg-input: #151d2e;
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-card: #222222;
+  --bg-card-hover: #2c2c2c;
+  --bg-input: #1a1a1a;
   --bg-modal: rgba(0, 0, 0, 0.7);
 
-  --border-default: #2a3450;
-  --border-focus: #3b82f6;
-  --border-subtle: #1e293b;
+  --border-default: #404040;
+  --border-focus: #ffffff;
+  --border-subtle: #333333;
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #0f172a;
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+  --text-inverse: #000000;
 
-  --accent-blue: #3b82f6;
-  --accent-blue-hover: #2563eb;
-  --accent-green: #10b981;
-  --accent-green-hover: #059669;
-  --accent-amber: #f59e0b;
-  --accent-amber-hover: #d97706;
-  --accent-red: #ef4444;
-  --accent-red-hover: #dc2626;
-  --accent-purple: #8b5cf6;
+  --accent-blue: #ffffff;
+  --accent-blue-hover: #e5e5e5;
+  --accent-green: #e5e5e5;
+  --accent-green-hover: #cccccc;
+  --accent-amber: #cccccc;
+  --accent-amber-hover: #a3a3a3;
+  --accent-red: #a3a3a3;
+  --accent-red-hover: #737373;
+  --accent-purple: #ffffff;
 
-  --gradient-blue: linear-gradient(135deg, #3b82f6, #6366f1);
-  --gradient-green: linear-gradient(135deg, #10b981, #06b6d4);
-  --gradient-amber: linear-gradient(135deg, #f59e0b, #ef4444);
+  --gradient-blue: #ffffff;
+  --gradient-green: #e5e5e5;
+  --gradient-amber: #cccccc;
 
   /* ── Typography ──────────────────────────────── */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -61,17 +61,17 @@
   --space-12: 3rem;
 
   /* ── Radii & Shadows ─────────────────────────── */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
-  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-glow-blue: none;
+  --shadow-glow-green: none;
 
   /* ── Transitions ─────────────────────────────── */
   --transition-fast: 150ms ease;
@@ -168,7 +168,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   font-size: var(--font-lg);
-  color: white;
+  color: var(--bg-primary);
   flex-shrink: 0;
 }
 
@@ -252,7 +252,7 @@ a:hover {
   justify-content: center;
   font-weight: 600;
   font-size: var(--font-sm);
-  color: white;
+  color: var(--bg-primary);
   flex-shrink: 0;
 }
 
@@ -340,8 +340,8 @@ a:hover {
 }
 
 .btn-primary {
-  background: var(--accent-blue);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-blue-hover);
@@ -349,8 +349,8 @@ a:hover {
 }
 
 .btn-success {
-  background: var(--accent-green);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 .btn-success:hover:not(:disabled) {
   background: var(--accent-green-hover);
@@ -358,8 +358,8 @@ a:hover {
 }
 
 .btn-danger {
-  background: var(--accent-red);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 .btn-danger:hover:not(:disabled) {
   background: var(--accent-red-hover);
@@ -532,25 +532,10 @@ a:hover {
   flex-shrink: 0;
 }
 
-.stat-icon.blue {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--accent-blue);
-}
-.stat-icon.green {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--accent-green);
-}
-.stat-icon.amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--accent-amber);
-}
-.stat-icon.red {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--accent-red);
-}
-.stat-icon.purple {
-  background: rgba(139, 92, 246, 0.15);
-  color: var(--accent-purple);
+.stat-icon.blue, .stat-icon.green, .stat-icon.amber, .stat-icon.red, .stat-icon.purple {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 .stat-value {
@@ -694,24 +679,10 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-.badge-green {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--accent-green);
-}
-
-.badge-amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--accent-amber);
-}
-
-.badge-red {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--accent-red);
-}
-
-.badge-blue {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--accent-blue);
+.badge-green, .badge-amber, .badge-red, .badge-blue {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 /* ==========================================
@@ -828,7 +799,7 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   font-size: var(--font-2xl);
-  color: white;
+  color: var(--bg-primary);
   margin: 0 auto var(--space-4);
 }
 
@@ -895,17 +866,10 @@ tbody tr:hover {
   min-width: 280px;
 }
 
-.toast-success {
-  background: var(--accent-green);
-  color: white;
-}
-.toast-error {
-  background: var(--accent-red);
-  color: white;
-}
-.toast-info {
-  background: var(--accent-blue);
-  color: white;
+.toast-success, .toast-error, .toast-info {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 /* ==========================================
