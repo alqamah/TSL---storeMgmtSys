@@ -13,7 +13,7 @@ import {
 } from 'react-icons/hi';
 
 export default function IssuesPage() {
-  const { stats } = useOutletContext() || { stats: {} };
+  const { stats, loadStats } = useOutletContext() || { stats: {} };
   const { user } = useAuth();
   const toast = useToast();
   const [issues, setIssues] = useState([]);
@@ -36,7 +36,7 @@ export default function IssuesPage() {
     issue_date: new Date().toISOString().split('T')[0],
     expected_return_date: '',
     remarks: '',
-    items: [{ item: '', quantity: 1 }],
+    items: [{ item: '', quantity: 1, search: '' }],
   });
 
   // Return modal state
@@ -54,6 +54,7 @@ export default function IssuesPage() {
       if (filter === 'returned') params.status = 'returned';
       const res = await issuesAPI.getAll(params);
       setIssues(res.data);
+      if (loadStats) loadStats();
     } catch (err) {
       const data = err.response?.data;
       toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to load issues'));
@@ -77,7 +78,7 @@ export default function IssuesPage() {
         issue_date: new Date().toISOString().split('T')[0],
         expected_return_date: '',
         remarks: '',
-        items: [{ item: '', quantity: 1 }],
+        items: [{ item: '', quantity: 1, search: '' }],
       });
       setIssueModalOpen(true);
     } catch (err) {
@@ -89,7 +90,7 @@ export default function IssuesPage() {
   const addItemRow = () => {
     setIssueForm({
       ...issueForm,
-      items: [...issueForm.items, { item: '', quantity: 1 }],
+      items: [...issueForm.items, { item: '', quantity: 1, search: '' }],
     });
   };
 
@@ -546,59 +547,114 @@ export default function IssuesPage() {
                     </button>
                   </div>
 
-                  {issueForm.items.map((row, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: 'flex',
-                        gap: '0.5rem',
-                        marginBottom: '0.5rem',
-                        alignItems: 'end',
-                      }}
-                    >
-                      <div className="form-group" style={{ flex: 3 }}>
-                        <select
-                          className="form-select"
-                          value={row.item}
-                          onChange={(e) =>
-                            updateItemRow(index, 'item', e.target.value)
-                          }
-                          required
-                        >
-                          <option value="">Select item...</option>
-                          {allItems
-                            .filter((it) => it.quantity > 0)
-                            .map((it) => (
-                              <option key={it._id} value={it._id}>
-                                {it.title} ({it.sap_id}) — Qty: {it.quantity}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <input
-                          className="form-input"
-                          type="number"
-                          min="1"
-                          value={row.quantity}
-                          onChange={(e) =>
-                            updateItemRow(index, 'quantity', e.target.value)
-                          }
-                          placeholder="Qty"
-                          required
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-icon btn-sm"
-                        onClick={() => removeItemRow(index)}
-                        disabled={issueForm.items.length <= 1}
-                        style={{ flexShrink: 0 }}
+                  {issueForm.items.map((row, index) => {
+                    const filteredItems = (allItems || []).filter((it) => {
+                      if (it._id === row.item) return true;
+                      if (it.quantity <= 0) return false;
+                      const s = (row.search || '').toLowerCase();
+                      if (!s) return true;
+                      return (
+                        (it.sap_id || '').toLowerCase().includes(s) ||
+                        (it.title || '').toLowerCase().includes(s) ||
+                        (it.category || '').toLowerCase().includes(s) ||
+                        (it.make || '').toLowerCase().includes(s) ||
+                        (it.location || '').toLowerCase().includes(s) ||
+                        (it.owner || '').toLowerCase().includes(s) ||
+                        (it.certificate_no || '').toLowerCase().includes(s) ||
+                        (it.description || '').toLowerCase().includes(s) ||
+                        (it.remarks || '').toLowerCase().includes(s)
+                      );
+                    });
+
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem',
+                          marginBottom: '1rem',
+                          padding: '1rem',
+                          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-default)',
+                        }}
                       >
-                        <HiOutlineTrash />
-                      </button>
-                    </div>
-                  ))}
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'end' }}>
+                          <div className="form-group" style={{ flex: 2 }}>
+                            <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Search Item (SAP ID, Title, etc.)</label>
+                            <div style={{ position: 'relative' }}>
+                              <HiOutlineSearch style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                              <input
+                                className="form-input"
+                                style={{ paddingLeft: '32px' }}
+                                placeholder="Search..."
+                                value={row.search || ''}
+                                onChange={(e) => updateItemRow(index, 'search', e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <div className="form-group" style={{ flex: 3 }}>
+                            <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Select Item *</label>
+                            <select
+                              className="form-select"
+                              value={row.item}
+                              onChange={(e) =>
+                                updateItemRow(index, 'item', e.target.value)
+                              }
+                              required
+                            >
+                              <option value="">
+                                {row.search ? `Matches for "${row.search}" (${filteredItems.length})` : 'Select item...'}
+                              </option>
+                              {filteredItems.map((it) => (
+                                <option key={it._id} value={it._id}>
+                                  {it.title} ({it.sap_id}) — Qty: {it.quantity}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="form-group" style={{ flex: 1 }}>
+                            <label className="form-label" style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Qty *</label>
+                            <input
+                              className="form-input"
+                              type="number"
+                              min="1"
+                              value={row.quantity}
+                              onChange={(e) =>
+                                updateItemRow(index, 'quantity', e.target.value)
+                              }
+                              placeholder="Qty"
+                              required
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-icon"
+                            onClick={() => removeItemRow(index)}
+                            disabled={issueForm.items.length <= 1}
+                            style={{ flexShrink: 0, height: '42px', width: '42px' }}
+                          >
+                            <HiOutlineTrash />
+                          </button>
+                        </div>
+                        {row.item && (
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', gap: '1rem' }}>
+                            {(() => {
+                              const it = allItems.find(i => i._id === row.item);
+                              return it ? (
+                                <>
+                                  <span><strong>Category:</strong> {it.category || '—'}</span>
+                                  <span><strong>Make:</strong> {it.make || '—'}</span>
+                                  <span><strong>Location:</strong> {it.location || '—'}</span>
+                                </>
+                              ) : null;
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 

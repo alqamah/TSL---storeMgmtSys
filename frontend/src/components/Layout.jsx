@@ -132,7 +132,7 @@ export default function Layout() {
       </aside>
 
       <main className="main-content">
-        <Outlet context={{ stats }} />
+        <Outlet context={{ stats, loadStats }} />
       </main>
     </div>
   );

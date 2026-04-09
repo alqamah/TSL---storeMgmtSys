@@ -30,7 +30,7 @@ const emptyItem = {
 };
 
 export default function ItemsPage() {
-  const { stats } = useOutletContext() || { stats: {} };
+  const { stats, loadStats } = useOutletContext() || { stats: {} };
   const { user } = useAuth();
   const toast = useToast();
   const fileInputRef = useRef(null);
@@ -56,6 +56,7 @@ export default function ItemsPage() {
     try {
       const res = await itemsAPI.getAll(query ? { search: query } : {});
       setItems(res.data);
+      if (loadStats) loadStats();
     } catch (err) {
       const data = err.response?.data;
       toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to load items'));
