@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { itemsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import * as XLSX from 'xlsx';
 import {
   HiOutlineSearch,
   HiOutlinePlus,
@@ -32,6 +33,7 @@ export default function ItemsPage() {
   const { stats } = useOutletContext() || { stats: {} };
   const { user } = useAuth();
   const toast = useToast();
+  const fileInputRef = useRef(null);
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -66,6 +68,68 @@ export default function ItemsPage() {
     const val = e.target.value;
     setSearch(val);
     loadItems(val);
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const data = evt.target.result;
+        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        
+        const mappedItems = json.map(rawRow => {
+          const row = {};
+          Object.keys(rawRow).forEach(k => {
+            row[k.trim().toUpperCase()] = rawRow[k];
+          });
+
+          let parsedQty = Number(row.QUANTITY);
+          if (isNaN(parsedQty)) {
+            parsedQty = 0;
+          }
+
+          return {
+            sap_id: String(row.SAP_ID || ''),
+            title: row.TITLE || '',
+            category: row.CATEGORY || '',
+            capacity: String(row.CAPACITY || ''),
+            quantity: parsedQty,
+            description: row.DESCRIPTION || '',
+            certificate_no: String(row.CERTIFICATE_NO || ''),
+            make: row.MAKE || '',
+            prev_due_date: row.PREV_DUE_DATE || null,
+            next_due_date: row.NEXT_DUE_DATE || null,
+            location: row.LOCATION || '',
+            owner: row.OWNER || '',
+            umc: row.UMC || '',
+            remarks: row.REMARKS || ''
+          };
+        });
+
+        toast.success(`Uploading ${mappedItems.length} items...`);
+        const res = await itemsAPI.bulkCreate({ items: mappedItems });
+        
+        if (res.data.stats.failedValidation > 0) {
+            toast.error(res.data.message);
+            console.error("Validation Errors:", res.data.errors);
+        } else {
+            toast.success(res.data.message);
+        }
+        loadItems(search);
+      } catch (err) {
+        toast.error('Failed to parse or upload Excel file');
+        console.error(err);
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   const openCreate = () => {
@@ -190,9 +254,24 @@ export default function ItemsPage() {
           )}
 
           {user && (
-            <button id="add-item-btn" className="btn btn-primary" onClick={openCreate}>
-              <HiOutlinePlus /> Add Item
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <a href="/addItems_uploadFormat.xlsx" download className="btn btn-ghost">
+                Download Template
+              </a>
+              <button className="btn btn-secondary" onClick={() => fileInputRef.current?.click()}>
+                Bulk Upload
+              </button>
+              <button id="add-item-btn" className="btn btn-primary" onClick={openCreate}>
+                <HiOutlinePlus /> Add Item
+              </button>
+            </div>
           )}
         </div>
       </div>
