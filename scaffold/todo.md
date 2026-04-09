@@ -5,3 +5,6 @@
 3. add description in issue schema ✅
 
 4. add fuzzy search in items and issues 
+
+5. Upload via excel feature
+
