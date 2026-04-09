@@ -6,5 +6,5 @@
 
 4. add fuzzy search in items and issues 
 
-5. Upload via excel feature
+5. Upload via excel feature ✅
 

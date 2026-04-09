@@ -264,7 +264,7 @@ export default function ItemsPage() {
                 onChange={handleFileUpload}
               />
               <a href="/addItems_uploadFormat.xlsx" download className="btn btn-ghost">
-                Download Template
+                Download Bulk<br />Upload Template
               </a>
               <button className="btn btn-secondary" onClick={() => fileInputRef.current?.click()}>
                 Bulk Upload
