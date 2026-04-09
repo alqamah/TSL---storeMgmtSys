@@ -1,4 +1,5 @@
 const Item = require('../models/Item');
+const { logAction } = require('../utils/logger');
 
 // GET /api/items — List all items (with optional search)
 exports.getAll = async (req, res, next) => {
@@ -37,6 +38,7 @@ exports.getById = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const item = await Item.create(req.body);
+    await logAction(req.user, 'CREATE_ITEM', 'Item', item._id, { sap_id: item.sap_id, title: item.title });
     res.status(201).json(item);
   } catch (err) {
     next(err);
@@ -108,6 +110,8 @@ exports.bulkCreate = async (req, res, next) => {
     const summary = `Successfully inserted ${inserted} items. Updated ${updated} items.` + errorMsg;
     
     // Return 200 consistently, let the frontend read the message
+    await logAction(req.user, 'BULK_CREATE_ITEMS', 'Item', 'BULK', { inserted, updated, failedValidation });
+    
     res.status(200).json({
         message: summary,
         stats: { inserted, updated, failedValidation },
@@ -126,6 +130,9 @@ exports.update = async (req, res, next) => {
       runValidators: true,
     });
     if (!item) return res.status(404).json({ error: 'Item not found' });
+    
+    await logAction(req.user, 'UPDATE_ITEM', 'Item', item._id, { sap_id: item.sap_id });
+    
     res.json(item);
   } catch (err) {
     next(err);
@@ -137,6 +144,9 @@ exports.remove = async (req, res, next) => {
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ error: 'Item not found' });
+    
+    await logAction(req.user, 'DELETE_ITEM', 'Item', item._id, { sap_id: item.sap_id, title: item.title });
+    
     res.json({ message: 'Item deleted', item });
   } catch (err) {
     next(err);

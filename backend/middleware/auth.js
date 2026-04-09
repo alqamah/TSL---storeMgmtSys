@@ -33,8 +33,15 @@ function optionalAuth(req, _res, next) {
       // Token is invalid — that's fine for reads, just skip
     }
   }
-
   next();
 }
 
-module.exports = { requireAuth, optionalAuth, JWT_SECRET };
+// Middleware: Require Admin role
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied: Requires Admin privileges' });
+  }
+  next();
+}
+
+module.exports = { requireAuth, optionalAuth, requireAdmin, JWT_SECRET };

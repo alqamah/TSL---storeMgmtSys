@@ -9,6 +9,7 @@ import {
   HiOutlineLogout,
   HiOutlineLogin,
   HiOutlineExclamationCircle,
+  HiOutlineDocumentText,
 } from 'react-icons/hi';
 
 export default function Layout() {
@@ -58,6 +59,10 @@ export default function Layout() {
     { to: '/items', icon: <HiOutlineCube />, label: 'Items' },
     { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issues' },
   ];
+
+  if (user && user.role === 'admin') {
+    navItems.push({ to: '/logs', icon: <HiOutlineDocumentText />, label: 'Logs' });
+  }
 
   return (
     <div className="app-layout">

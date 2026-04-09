@@ -292,7 +292,7 @@ export default function ItemsPage() {
             <div className="table-filters-row">
               <select className="form-select select-sm" value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
                 <option value="">All Categories</option>
-                {['C1', 'C2', 'C3', 'C4', 'C5'].map(c => <option key={c} value={c}>{c}</option>)}
+                {[...new Set(items.map(i => i.category).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <select className="form-select select-sm" value={filters.make} onChange={(e) => setFilters({...filters, make: e.target.value})}>
                 <option value="">All Makes</option>

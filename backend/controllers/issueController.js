@@ -1,5 +1,6 @@
 const Issue = require('../models/Issue');
 const Item = require('../models/Item');
+const { logAction } = require('../utils/logger');
 
 // GET /api/issues — List all issues (optionally filter by active/returned)
 exports.getAll = async (req, res, next) => {
@@ -122,6 +123,8 @@ exports.create = async (req, res, next) => {
       { path: 'items.item', select: 'sap_id title location quantity' },
     ]);
 
+    await logAction(req.user, 'CREATE_ISSUE', 'Issue', issue._id, { employee: employee_name, items });
+
     res.status(201).json(populated);
   } catch (err) {
     next(err);
@@ -230,6 +233,8 @@ exports.deleteIssue = async (req, res, next) => {
     }
 
     await Issue.findByIdAndDelete(req.params.id);
+
+    await logAction(req.user, 'DELETE_ISSUE', 'Issue', req.params.id, { employee: issue.employee_name });
 
     res.json({ message: 'Issue deleted successfully' });
   } catch (err) {

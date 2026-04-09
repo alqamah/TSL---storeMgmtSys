@@ -62,3 +62,8 @@ export const issuesAPI = {
   returnItem: (id, data) => api.put(`/issues/${id}/return`, data),
   delete: (id) => api.delete(`/issues/${id}`),
 };
+
+// ── Logs ──────────────────────────────────────────────
+export const logsAPI = {
+  getAll: () => api.get('/logs'),
+};

@@ -13,13 +13,13 @@ app.use(express.json());
 // ── Routes ───────────────────────────────────────────────
 const authRoutes     = require('./routes/authRoutes');
 const itemRoutes     = require('./routes/itemRoutes');
-
 const issueRoutes    = require('./routes/issueRoutes');
+const logRoutes      = require('./routes/logRoutes');
 
 app.use('/api/auth',      authRoutes);
 app.use('/api/items',     itemRoutes);
-
 app.use('/api/issues',    issueRoutes);
+app.use('/api/logs',      logRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
