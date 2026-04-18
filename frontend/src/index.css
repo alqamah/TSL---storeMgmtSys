@@ -806,6 +806,7 @@ tbody tr:hover {
   width: 100%;
   max-width: 420px;
   box-shadow: var(--shadow-lg);
+  position: relative;
 }
 
 .login-header {
@@ -860,6 +861,26 @@ tbody tr:hover {
 .login-footer a {
   color: var(--accent-blue);
   font-weight: 500;
+}
+
+.login-close-btn {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: transparent;
+  border: none;
+  font-size: var(--font-xl);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  padding: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-close-btn:hover {
+  color: var(--text-primary);
 }
 
 /* ==========================================

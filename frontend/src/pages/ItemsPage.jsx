@@ -96,20 +96,22 @@ export default function ItemsPage() {
           }
 
           return {
+            part_no: String(row.PART_NO || ''),
             sap_id: String(row.SAP_ID || ''),
             title: row.TITLE || '',
-            category: row.CATEGORY || '',
-            capacity: String(row.CAPACITY || ''),
             quantity: parsedQty,
             description: row.DESCRIPTION || '',
+            category: row.CATEGORY || '',
+            location: row.LOCATION || '',
+            capacity: String(row.CAPACITY || ''),
             certificate_no: String(row.CERTIFICATE_NO || ''),
             make: row.MAKE || '',
             prev_due_date: row.PREV_DUE_DATE || null,
             next_due_date: row.NEXT_DUE_DATE || null,
-            location: row.LOCATION || '',
             owner: row.OWNER || '',
             umc: row.UMC || '',
-            remarks: row.REMARKS || ''
+            date_added: row.DATE_ADDED || null,
+            remarks: row.REMARKS || '',
           };
         });
 

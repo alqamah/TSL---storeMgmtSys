@@ -32,7 +32,7 @@ export default function RegisterPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <button onClick={() => navigate('/')} style={{backgroundColor: 'white', color: 'black', padding: '5px 10px', cursor: 'pointer'}}>Close</button>
+        <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
           <div className="login-logo">📦</div>
           <h1 className="login-title">Create Account</h1>
