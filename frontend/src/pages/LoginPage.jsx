@@ -34,7 +34,6 @@ export default function LoginPage() {
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
           <h1 className="login-title">Welcome Back</h1>
-          <p className="login-subtitle">Sign in to manage the store</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
