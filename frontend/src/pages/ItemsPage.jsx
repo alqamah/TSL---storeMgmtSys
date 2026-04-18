@@ -478,13 +478,12 @@ export default function ItemsPage() {
               <div className="modal-body">
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="form-label">SAP ID *</label>
+                    <label className="form-label">SAP ID</label>
                     <input
                       className="form-input"
                       name="sap_id"
                       value={form.sap_id}
                       onChange={handleChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -509,7 +508,7 @@ export default function ItemsPage() {
                       onChange={handleChange}
                     >
                       <option value="">Select...</option>
-                      {['C1', 'C2', 'C3', 'C4', 'C5'].map(c => (
+                      {categories.map(c => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>

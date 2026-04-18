@@ -60,13 +60,7 @@ exports.bulkCreate = async (req, res, next) => {
 
     for (let i = 0; i < items.length; i++) {
         const itemData = items[i];
-        
-        // Skip if critical missing data before DB hit
-        if (!itemData.sap_id) {
-            failedValidation++;
-            errorsObject.push({ row: i+1, sap_id: 'MISSING', msg: 'SAP ID is required' });
-            continue;
-        }
+        const rowRef = itemData.sap_id || itemData.part_no || `Row ${i + 1}`;
 
         // Date validation: next_due_date > prev_due_date
         if (itemData.prev_due_date && itemData.next_due_date) {
@@ -76,16 +70,22 @@ exports.bulkCreate = async (req, res, next) => {
                 delete itemData.prev_due_date;
                 delete itemData.next_due_date;
                 failedValidation++;
-                errorsObject.push({ row: i+1, sap_id: itemData.sap_id, msg: 'Next Due Date must be after Previous Due Date. Item updated without modifying dates.' });
+                errorsObject.push({ row: i+1, ref: rowRef, msg: 'Next Due Date must be after Previous Due Date. Item updated without modifying dates.' });
             }
         }
 
         try {
-            const sapIdStr = String(itemData.sap_id).trim();
-            const existing = await Item.findOne({ sap_id: sapIdStr });
-            if (existing) {
-                await Item.findByIdAndUpdate(existing._id, itemData, { runValidators: true });
-                updated++;
+            // If sap_id is present, attempt an upsert; otherwise always insert
+            if (itemData.sap_id) {
+                const sapIdStr = String(itemData.sap_id).trim();
+                const existing = await Item.findOne({ sap_id: sapIdStr });
+                if (existing) {
+                    await Item.findByIdAndUpdate(existing._id, itemData, { runValidators: true });
+                    updated++;
+                } else {
+                    await Item.create(itemData);
+                    inserted++;
+                }
             } else {
                 await Item.create(itemData);
                 inserted++;
@@ -93,13 +93,13 @@ exports.bulkCreate = async (req, res, next) => {
         } catch (err) {
             if (err.name === 'ValidationError') {
                 failedValidation++;
-                errorsObject.push({ row: i+1, sap_id: itemData.sap_id, msg: err.message });
+                errorsObject.push({ row: i+1, ref: rowRef, msg: err.message });
             } else if (err.code === 11000) {
                 failedValidation++;
-                errorsObject.push({ row: i+1, sap_id: itemData.sap_id, msg: 'Duplicate SAP ID' });
+                errorsObject.push({ row: i+1, ref: rowRef, msg: 'Duplicate SAP ID' });
             } else {
                 failedValidation++;
-                errorsObject.push({ row: i+1, sap_id: itemData.sap_id, msg: err.message });
+                errorsObject.push({ row: i+1, ref: rowRef, msg: err.message });
             }
         }
     }

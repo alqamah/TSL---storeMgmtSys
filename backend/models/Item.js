@@ -11,6 +11,7 @@ const itemSchema = new Schema(
     sap_id: {
       type: String,
       unique: true,
+      sparse: true,   // allows multiple docs with null/missing sap_id
       trim: true,
     },
     title: {
