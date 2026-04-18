@@ -13,5 +13,6 @@
 issue -> search -> display description
 issue-> search -> stock instead of quantity
 display all rows for selected item in issue box
+user -> change password, add phone
 
 ui-> add light mode

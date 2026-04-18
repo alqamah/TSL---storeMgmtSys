@@ -136,6 +136,36 @@ export default function ItemsPage() {
     reader.readAsArrayBuffer(file);
   };
 
+  const handleBulkExport = () => {
+    const dataToExport = selected.length > 0 
+      ? items.filter(i => selected.includes(i._id))
+      : items;
+
+    const mappedData = dataToExport.map(item => ({
+      PART_NO: item.part_no || '',
+      SAP_ID: item.sap_id || '',
+      TITLE: item.title || '',
+      QUANTITY: item.quantity || 0,
+      DESCRIPTION: item.description || '',
+      CATEGORY: item.category || '',
+      LOCATION: item.location || '',
+      CAPACITY: item.capacity || '',
+      CERTIFICATE_NO: item.certificate_no || '',
+      MAKE: item.make || '',
+      PREV_DUE_DATE: item.prev_due_date ? new Date(item.prev_due_date).toISOString().split('T')[0] : '',
+      NEXT_DUE_DATE: item.next_due_date ? new Date(item.next_due_date).toISOString().split('T')[0] : '',
+      OWNER: item.owner || '',
+      UMC: item.umc || '',
+      DATE_ADDED: item.date_added ? new Date(item.date_added).toISOString().split('T')[0] : '',
+      REMARKS: item.remarks || '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(mappedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Items');
+    XLSX.writeFile(workbook, 'Bulk_Export_Items.xlsx');
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm({ ...emptyItem });
@@ -336,7 +366,12 @@ export default function ItemsPage() {
               <button className="btn btn-secondary" onClick={() => fileInputRef.current?.click()}>
                 Bulk Upload
               </button>
-              <button id="add-item-btn" className="btn btn-primary" onClick={openCreate}>
+              {user.role === 'admin' && (
+                <button className="btn btn-secondary" onClick={handleBulkExport}>
+                  Bulk Export
+                </button>
+              )}
+                <button className="btn btn-primary" onClick={openCreate}>
                 <HiOutlinePlus /> Add Item
               </button>
             </div>
