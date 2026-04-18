@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { issuesAPI, itemsAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import * as XLSX from 'xlsx';
 import {
   HiOutlineSearch,
   HiOutlinePlus,
@@ -234,6 +235,49 @@ export default function IssuesPage() {
     }
   };
 
+  const handleBulkExport = () => {
+    const dataToExport = selected.length > 0 
+      ? issues.filter(i => selected.includes(i._id))
+      : issues;
+
+    const mappedData = [];
+    dataToExport.forEach(issue => {
+      const baseData = {
+        EMPLOYEE_NAME: issue.employee_name || '',
+        EMPLOYEE_P_NO: issue.employee_p_no || '',
+        EMPLOYEE_PHONE: issue.employee_phone || '',
+        VENDOR_SUPERVISOR: issue.vendor_supervisor_name || '',
+        GATEPASS_NO: issue.vendor_supervisor_gatepass_no || '',
+        JOB_LOCATION: issue.job_location || '',
+        ISSUER_P_NO: issue.issuer_p_no || '',
+        REMARKS: issue.remarks || '',
+        ISSUE_DATE: issue.issue_date ? new Date(issue.issue_date).toISOString().split('T')[0] : '',
+        EXPECTED_RETURN: issue.expected_return_date ? new Date(issue.expected_return_date).toISOString().split('T')[0] : '',
+        RETURN_DATE: issue.return_date ? new Date(issue.return_date).toISOString().split('T')[0] : '',
+        STATUS: issue.is_permanent ? 'Permanent' : (issue.return_date ? 'Returned' : 'Active')
+      };
+
+      if (issue.items && issue.items.length > 0) {
+        issue.items.forEach(i => {
+          mappedData.push({
+            ...baseData,
+            ITEM_TITLE: i.item?.title || 'Unknown',
+            ITEM_SAP_ID: i.item?.sap_id || '',
+            QTY_ISSUED: i.quantity || 0,
+            QTY_RETURNED: i.returned_quantity || 0,
+          });
+        });
+      } else {
+        mappedData.push(baseData);
+      }
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(mappedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Issues');
+    XLSX.writeFile(workbook, 'Bulk_Export_Issues.xlsx');
+  };
+
   if (loading) {
     return (
       <div className="loading-page">
@@ -279,6 +323,11 @@ export default function IssuesPage() {
               {selected.length > 0 && (
                 <button className="btn btn-danger" onClick={handleDeleteSelected}>
                   <HiOutlineTrash /> {selected.length} Selected
+                </button>
+              )}
+              {user.role === 'admin' && (
+                <button className="btn btn-secondary" onClick={handleBulkExport}>
+                  Bulk Export
                 </button>
               )}
               <button id="issue-item-btn" className="btn btn-primary" onClick={openIssueModal}>
