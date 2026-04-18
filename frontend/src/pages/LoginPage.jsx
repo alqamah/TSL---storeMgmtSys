@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import logo from '../assets/logo1.svg';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -32,7 +33,6 @@ export default function LoginPage() {
       <div className="login-card">
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
-          <div className="login-logo"><img src="../assets/logo.png" alt="logo" /></div>
           <h1 className="login-title">Welcome Back</h1>
           <p className="login-subtitle">Sign in to manage the store</p>
         </div>

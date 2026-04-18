@@ -1,6 +1,5 @@
 const Issue = require('../models/Issue');
 const Item = require('../models/Item');
-const { logAction } = require('../utils/logger');
 
 // GET /api/issues — List all issues (optionally filter by active/returned)
 exports.getAll = async (req, res, next) => {
@@ -8,8 +7,17 @@ exports.getAll = async (req, res, next) => {
     const { status, item, employee } = req.query;
     const filter = {};
 
-    if (status === 'active') filter.return_date = null;
-    if (status === 'returned') filter.return_date = { $ne: null };
+    if (status === 'active') {
+      filter.return_date = null;
+      filter.is_permanent = { $ne: true };
+    }
+    if (status === 'returned') {
+      filter.return_date = { $ne: null };
+      filter.is_permanent = { $ne: true };
+    }
+    if (status === 'permanent') {
+      filter.is_permanent = true;
+    }
     if (item) filter['items.item'] = item;
     if (employee) {
       filter.$or = [
@@ -31,7 +39,7 @@ exports.getAll = async (req, res, next) => {
 // GET /api/issues/active — Currently issued items (shortcut)
 exports.getActive = async (_req, res, next) => {
   try {
-    const issues = await Issue.find({ return_date: null })
+    const issues = await Issue.find({ return_date: null, is_permanent: { $ne: true } })
       .populate('items.item', 'sap_id title location quantity')
       .sort({ issue_date: -1 });
 
@@ -70,6 +78,7 @@ exports.create = async (req, res, next) => {
       expected_return_date,
       issuer_p_no,
       remarks,
+      is_permanent,
     } = req.body;
 
     if (!items || !items.length) {
@@ -105,6 +114,7 @@ exports.create = async (req, res, next) => {
       expected_return_date: expected_return_date || null,
       issuer_p_no,
       remarks: remarks || '',
+      is_permanent: is_permanent || false,
     });
 
     // Validate issue explicitly before altering stock
@@ -122,8 +132,6 @@ exports.create = async (req, res, next) => {
     const populated = await issue.populate([
       { path: 'items.item', select: 'sap_id title location quantity' },
     ]);
-
-    await logAction(req.user, 'CREATE_ISSUE', 'Issue', issue._id, { employee: employee_name, items });
 
     res.status(201).json(populated);
   } catch (err) {
@@ -233,8 +241,6 @@ exports.deleteIssue = async (req, res, next) => {
     }
 
     await Issue.findByIdAndDelete(req.params.id);
-
-    await logAction(req.user, 'DELETE_ISSUE', 'Issue', req.params.id, { employee: issue.employee_name });
 
     res.json({ message: 'Issue deleted successfully' });
   } catch (err) {

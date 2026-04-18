@@ -8,3 +8,10 @@
 
 5. Upload via excel feature ✅
 
+
+
+issue -> search -> display description
+issue-> search -> stock instead of quantity
+display all rows for selected item in issue box
+
+ui-> add light mode

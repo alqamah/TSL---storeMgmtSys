@@ -181,10 +181,11 @@ a:hover {
 }
 
 .sidebar-logo-text {
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .sidebar-logo-sub {
@@ -236,10 +237,7 @@ a:hover {
   justify-content: center;
 }
 
-.sidebar-footer {
-  padding: var(--space-4);
-  border-top: 1px solid var(--border-subtle);
-}
+
 
 .sidebar-user {
   display: flex;
@@ -281,6 +279,22 @@ a:hover {
   font-size: var(--font-xs);
   color: var(--text-muted);
   text-transform: capitalize;
+}
+
+.sidebar-footer {
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sidebar-footer-alqama {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  font-style: italic;
+  background-color: #000;
+  letter-spacing: .5px;
 }
 
 .main-content {
@@ -576,7 +590,6 @@ a:hover {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  /* overflow: hidden; */
 }
 
 .table-toolbar {
@@ -656,7 +669,7 @@ thead {
 }
 
 th {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-3);
   font-size: var(--font-xs);
   font-weight: 600;
   color: var(--text-muted);
@@ -667,7 +680,7 @@ th {
 }
 
 td {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-3);
   font-size: var(--font-sm);
   color: var(--text-secondary);
   border-top: 1px solid var(--border-subtle);
@@ -701,6 +714,18 @@ tbody tr:hover {
   background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-default);
+}
+
+.badge-green {
+  background: #d1fae5;
+  color: black;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-red {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 /* ==========================================

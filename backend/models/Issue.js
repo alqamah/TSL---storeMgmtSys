@@ -100,6 +100,10 @@ const issueSchema = new Schema(
       trim: true,
       default: '',
     },
+    is_permanent: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

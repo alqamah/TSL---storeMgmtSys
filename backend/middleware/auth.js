@@ -36,12 +36,4 @@ function optionalAuth(req, _res, next) {
   next();
 }
 
-// Middleware: Require Admin role
-function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Access denied: Requires Admin privileges' });
-  }
-  next();
-}
-
-module.exports = { requireAuth, optionalAuth, requireAdmin, JWT_SECRET };
+module.exports = { requireAuth, optionalAuth, JWT_SECRET };

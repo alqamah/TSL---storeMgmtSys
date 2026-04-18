@@ -15,12 +15,14 @@ import {
 
 const emptyItem = {
   sap_id: '',
+  part_no: '',
   title: '',
   capacity: '',
   quantity: '',
   description: '',
   certificate_no: '',
   make: '',
+  date_added: new Date().toISOString().split('T')[0],
   prev_due_date: '',
   next_due_date: '',
   location: '',
@@ -41,6 +43,7 @@ export default function ItemsPage() {
   const [editing, setEditing] = useState(null); // null = create, id = edit
   const [viewing, setViewing] = useState(null); // item to view
   const [form, setForm] = useState({ ...emptyItem });
+  const [selected, setSelected] = useState([]);
   const [filters, setFilters] = useState({
     category: '',
     make: '',
@@ -52,9 +55,9 @@ export default function ItemsPage() {
     loadItems();
   }, []);
 
-  const loadItems = async (query) => {
+  const loadItems = async () => {
     try {
-      const res = await itemsAPI.getAll(query ? { search: query } : {});
+      const res = await itemsAPI.getAll();
       setItems(res.data);
       if (loadStats) loadStats();
     } catch (err) {
@@ -66,9 +69,7 @@ export default function ItemsPage() {
   };
 
   const handleSearch = (e) => {
-    const val = e.target.value;
-    setSearch(val);
-    loadItems(val);
+    setSearch(e.target.value);
   };
 
   const handleFileUpload = async (e) => {
@@ -83,7 +84,7 @@ export default function ItemsPage() {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-        
+
         const mappedItems = json.map(rawRow => {
           const row = {};
           Object.keys(rawRow).forEach(k => {
@@ -97,7 +98,7 @@ export default function ItemsPage() {
 
           return {
             part_no: String(row.PART_NO || ''),
-            sap_id: String(row.SAP_ID || ''),
+            ...(row.SAP_ID ? { sap_id: String(row.SAP_ID) } : {}),
             title: row.TITLE || '',
             quantity: parsedQty,
             description: row.DESCRIPTION || '',
@@ -110,21 +111,21 @@ export default function ItemsPage() {
             next_due_date: row.NEXT_DUE_DATE || null,
             owner: row.OWNER || '',
             umc: row.UMC || '',
-            date_added: row.DATE_ADDED || null,
+            date_added: row.CREATED_AT || row.DATE_ADDED || null,
             remarks: row.REMARKS || '',
           };
         });
 
         toast.success(`Uploading ${mappedItems.length} items...`);
         const res = await itemsAPI.bulkCreate({ items: mappedItems });
-        
+
         if (res.data.stats.failedValidation > 0) {
-            toast.error(res.data.message);
-            console.error("Validation Errors:", res.data.errors);
+          toast.error(res.data.message);
+          console.error("Validation Errors:", res.data.errors);
         } else {
-            toast.success(res.data.message);
+          toast.success(res.data.message);
         }
-        loadItems(search);
+        loadItems();
       } catch (err) {
         toast.error('Failed to parse or upload Excel file');
         console.error(err);
@@ -151,6 +152,9 @@ export default function ItemsPage() {
       next_due_date: item.next_due_date
         ? item.next_due_date.substring(0, 10)
         : '',
+      date_added: item.date_added
+        ? item.date_added.substring(0, 10)
+        : '',
     });
     setModalOpen(true);
   };
@@ -161,7 +165,7 @@ export default function ItemsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (form.next_due_date && form.prev_due_date && new Date(form.next_due_date) < new Date(form.prev_due_date)) {
       toast.error('Next due date cannot be before prev due date');
       return;
@@ -173,7 +177,13 @@ export default function ItemsPage() {
         quantity: Number(form.quantity),
         prev_due_date: form.prev_due_date || null,
         next_due_date: form.next_due_date || null,
+        date_added: form.date_added || null,
       };
+
+      // Remove sap_id if it is empty to avoid duplicate key error with empty strings
+      if (!payload.sap_id || payload.sap_id.trim() === '') {
+        delete payload.sap_id;
+      }
 
       if (editing) {
         await itemsAPI.update(editing, payload);
@@ -183,7 +193,7 @@ export default function ItemsPage() {
         toast.success('Item created');
       }
       setModalOpen(false);
-      loadItems(search);
+      loadItems();
     } catch (err) {
       const data = err.response?.data;
       toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Failed to save'));
@@ -195,7 +205,7 @@ export default function ItemsPage() {
     try {
       await itemsAPI.delete(id);
       toast.success('Item deleted');
-      loadItems(search);
+      loadItems();
     } catch (err) {
       const data = err.response?.data;
       toast.error(data?.messages?.length ? data.messages.join(' | ') : (data?.error || 'Delete failed'));
@@ -224,6 +234,56 @@ export default function ItemsPage() {
     );
   }
 
+  const displayedItems = items.filter(item => {
+    const searchStr = search.toLowerCase();
+    const matchesSearch = (item.title || '').toLowerCase().includes(searchStr) ||
+      (item.sap_id || '').toLowerCase().includes(searchStr) ||
+      (item.category || '').toLowerCase().includes(searchStr) ||
+      (item.make || '').toLowerCase().includes(searchStr) ||
+      (item.umc || '').toLowerCase().includes(searchStr) ||
+      (item.description || '').toLowerCase().includes(searchStr) ||
+      (item.capacity || '').toLowerCase().includes(searchStr) ||
+      (item.certificate_no || '').toLowerCase().includes(searchStr) ||
+      (item.remarks || '').toLowerCase().includes(searchStr);
+    const matchesCategory = !filters.category || item.category === filters.category;
+    const matchesMake = !filters.make || item.make === filters.make;
+    const matchesLocation = !filters.location || item.location === filters.location;
+    const matchesOwner = !filters.owner || item.owner === filters.owner;
+    return matchesSearch && matchesCategory && matchesMake && matchesLocation && matchesOwner;
+  });
+
+  const isAllSelected = displayedItems.length > 0 && selected.length === displayedItems.length;
+  
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(displayedItems.map(i => i._id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const handleSelectOne = (e, id) => {
+    e.stopPropagation();
+    if (e.target.checked) {
+      setSelected([...selected, id]);
+    } else {
+      setSelected(selected.filter(s => s !== id));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!confirm(`Are you sure you want to delete ${selected.length} selected items?`)) return;
+    try {
+      await Promise.all(selected.map((id) => itemsAPI.delete(id)));
+      toast.success(`${selected.length} items deleted`);
+      setSelected([]);
+      loadItems();
+    } catch (err) {
+      toast.error('Some items could not be deleted');
+      loadItems();
+    }
+  };
+
   return (
     <>
       <div className="page-header">
@@ -232,7 +292,7 @@ export default function ItemsPage() {
             <h1 className="page-title">Items</h1>
             <p className="page-subtitle">{items.length} items in store</p>
           </div>
-          
+
           {user && (
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
               <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
@@ -244,7 +304,7 @@ export default function ItemsPage() {
               <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
                 <div style={{ textAlign: 'center' }}>
                   <div className="stat-value" style={{ fontSize: '1.5rem' }}>{stats?.activeIssues || 0}</div>
-                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Active Issues</div>
+                  <div className="stat-label" style={{ fontSize: '0.7rem' }}>Active Issued Items</div>
                 </div>
               </div>
               <div className="stat-card" style={{ padding: '0.5rem 1.5rem', margin: 0 }}>
@@ -258,6 +318,11 @@ export default function ItemsPage() {
 
           {user && (
             <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {selected.length > 0 && (
+                <button className="btn btn-danger" onClick={handleDeleteSelected}>
+                  <HiOutlineTrash /> {selected.length} Selected
+                </button>
+              )}
               <input
                 type="file"
                 accept=".xlsx, .xls"
@@ -286,29 +351,29 @@ export default function ItemsPage() {
               <HiOutlineSearch className="icon" />
               <input
                 id="search-items"
-                placeholder="Search by title or SAP ID..."
+                placeholder="Search items by any field..."
                 value={search}
                 onChange={handleSearch}
               />
             </div>
 
             <div className="table-filters-row">
-              <select className="form-select select-sm" value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
+              <select className="form-select select-sm" value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })}>
                 <option value="">All Categories</option>
                 {[...new Set(items.map(i => i.category).filter(Boolean))].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              <select className="form-select select-sm" value={filters.make} onChange={(e) => setFilters({...filters, make: e.target.value})}>
+              <select className="form-select select-sm" value={filters.make} onChange={(e) => setFilters({ ...filters, make: e.target.value })}>
                 <option value="">All Makes</option>
                 {[...new Set(items.map(i => i.make).filter(Boolean))].map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-              <select className="form-select select-sm" value={filters.location} onChange={(e) => setFilters({...filters, location: e.target.value})}>
+              <select className="form-select select-sm" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}>
                 <option value="">All Locations</option>
                 {[...new Set(items.map(i => i.location).filter(Boolean))].map(l => <option key={l} value={l}>{l}</option>)}
               </select>
-              <select className="form-select select-sm" value={filters.owner} onChange={(e) => setFilters({...filters, owner: e.target.value})}>
+              {/* <select className="form-select select-sm" value={filters.owner} onChange={(e) => setFilters({ ...filters, owner: e.target.value })}>
                 <option value="">All Owners</option>
                 {[...new Set(items.map(i => i.owner).filter(Boolean))].map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
+              </select> */}
             </div>
           </div>
 
@@ -316,6 +381,11 @@ export default function ItemsPage() {
             <table>
               <thead>
                 <tr>
+                  {user && (
+                    <th style={{ width: '40px' }}>
+                      <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
+                    </th>
+                  )}
                   <th>SAP ID</th>
                   <th>Title</th>
                   <th>Qty</th>
@@ -335,18 +405,19 @@ export default function ItemsPage() {
                     </td>
                   </tr>
                 ) : (
-                  items
-                    .filter(item => {
-                      const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
-                                           item.sap_id.toLowerCase().includes(search.toLowerCase());
-                      const matchesCategory = !filters.category || item.category === filters.category;
-                      const matchesMake = !filters.make || item.make === filters.make;
-                      const matchesLocation = !filters.location || item.location === filters.location;
-                      const matchesOwner = !filters.owner || item.owner === filters.owner;
-                      return matchesSearch && matchesCategory && matchesMake && matchesLocation && matchesOwner;
-                    })
+                  displayedItems
                     .map((item) => (
                       <tr key={item._id} onClick={() => setViewing(item)} style={{ cursor: 'pointer' }}>
+                        {user && (
+                          <td onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selected.includes(item._id)}
+                              onChange={(e) => handleSelectOne(e, item._id)}
+                              style={{ cursor: 'pointer' }}
+                            />
+                          </td>
+                        )}
                         <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
                           {item.sap_id}
                         </td>
@@ -395,7 +466,7 @@ export default function ItemsPage() {
         }
         .item-details-grid p {
           margin: 0;
-          font-size: var(--font-sm);
+          font-size: var(--font-);
         }
         .item-details-grid span.label {
           color: var(--text-muted);
@@ -422,12 +493,13 @@ export default function ItemsPage() {
             </div>
             <div className="modal-body">
               <div className="item-details-grid">
-                <p><span className="label">SAP ID</span><span className="value">{viewing.sap_id}</span></p>
-                <p><span className="label">Title</span><span className="value">{viewing.title}</span></p>
+                <p><span className="label">Part No.</span><span className="value">{viewing.part_no || '—'}</span></p>
+                <p><span className="label">SAP ID</span><span className="value">{viewing.sap_id || '—'}</span></p>
+                <p style={{ gridColumn: '1 / -1' }}><span className="label"><b>Title</b></span><span className="value">{viewing.title}</span></p>
                 <p><span className="label">Category</span><span className="value">{viewing.category || '—'}</span></p>
                 <p><span className="label">Capacity</span><span className="value">{viewing.capacity || '—'}</span></p>
                 <p>
-                  <span className="label">Quantity</span>
+                  <span className="label"><b>Quantity</b></span>
                   <span className="value">
                     <span className={`badge ${viewing.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
                       {viewing.quantity}
@@ -450,6 +522,7 @@ export default function ItemsPage() {
                     ) : '—'}
                   </span>
                 </p>
+                <p style={{ gridColumn: '1 / -1' }}><span className="label">Added On</span><span className="value">{viewing.date_added ? formatDate(viewing.date_added) : '—'}</span></p>
                 <p style={{ gridColumn: '1 / -1' }}><span className="label">Description</span><span className="value">{viewing.description || '—'}</span></p>
                 <p style={{ gridColumn: '1 / -1' }}><span className="label">Remarks</span><span className="value">{viewing.remarks || '—'}</span></p>
               </div>
@@ -487,6 +560,15 @@ export default function ItemsPage() {
                     />
                   </div>
                   <div className="form-group">
+                    <label className="form-label">Part No.</label>
+                    <input
+                      className="form-input"
+                      name="part_no"
+                      value={form.part_no || ''}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
                     <label className="form-label">Title *</label>
                     <input
                       className="form-input"
@@ -501,17 +583,19 @@ export default function ItemsPage() {
                 <div className="form-row-4">
                   <div className="form-group">
                     <label className="form-label">Category</label>
-                    <select
-                      className="form-select"
+                    <input
+                      className="form-input"
                       name="category"
+                      list="category-options"
+                      placeholder="Type or select..."
                       value={form.category}
                       onChange={handleChange}
-                    >
-                      <option value="">Select...</option>
-                      {categories.map(c => (
-                        <option key={c} value={c}>{c}</option>
+                    />
+                    <datalist id="category-options">
+                      {[...new Set(items.map(i => i.category).filter(Boolean))].map(c => (
+                        <option key={c} value={c} />
                       ))}
-                    </select>
+                    </datalist>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Capacity</label>
@@ -586,25 +670,68 @@ export default function ItemsPage() {
 
                 <div className="form-row">
                   <div className="form-group">
+                    <label className="form-label">Date Added</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="form-input"
+                        name="date_added"
+                        type="date"
+                        value={form.date_added || ''}
+                        onChange={handleChange}
+                      />
+                      {form.date_added && (
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, date_added: '' })}
+                          style={{ position: 'absolute', right: '35px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <HiOutlineX />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="form-group">
                     <label className="form-label">Prev Due Date</label>
-                    <input
-                      className="form-input"
-                      name="prev_due_date"
-                      type="date"
-                      value={form.prev_due_date}
-                      onChange={handleChange}
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="form-input"
+                        name="prev_due_date"
+                        type="date"
+                        value={form.prev_due_date || ''}
+                        onChange={handleChange}
+                      />
+                      {form.prev_due_date && (
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, prev_due_date: '' })}
+                          style={{ position: 'absolute', right: '35px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <HiOutlineX />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Next Due Date</label>
-                    <input
-                      className="form-input"
-                      name="next_due_date"
-                      type="date"
-                      min={form.prev_due_date}
-                      value={form.next_due_date}
-                      onChange={handleChange}
-                    />
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="form-input"
+                        name="next_due_date"
+                        type="date"
+                        min={form.prev_due_date || ''}
+                        value={form.next_due_date || ''}
+                        onChange={handleChange}
+                      />
+                      {form.next_due_date && (
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, next_due_date: '' })}
+                          style={{ position: 'absolute', right: '35px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <HiOutlineX />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

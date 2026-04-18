@@ -1,5 +1,4 @@
 const Item = require('../models/Item');
-const { logAction } = require('../utils/logger');
 
 // GET /api/items — List all items (with optional search)
 exports.getAll = async (req, res, next) => {
@@ -37,8 +36,11 @@ exports.getById = async (req, res, next) => {
 // POST /api/items — Create item
 exports.create = async (req, res, next) => {
   try {
-    const item = await Item.create(req.body);
-    await logAction(req.user, 'CREATE_ITEM', 'Item', item._id, { sap_id: item.sap_id, title: item.title });
+    const data = { ...req.body };
+    if (!data.sap_id || data.sap_id.trim() === '') {
+        delete data.sap_id;
+    }
+    const item = await Item.create(data);
     res.status(201).json(item);
   } catch (err) {
     next(err);
@@ -87,6 +89,10 @@ exports.bulkCreate = async (req, res, next) => {
                     inserted++;
                 }
             } else {
+                // If empty string is passed, delete it to respect sparse index
+                if (itemData.sap_id === '') {
+                    delete itemData.sap_id;
+                }
                 await Item.create(itemData);
                 inserted++;
             }
@@ -110,8 +116,6 @@ exports.bulkCreate = async (req, res, next) => {
     const summary = `Successfully inserted ${inserted} items. Updated ${updated} items.` + errorMsg;
     
     // Return 200 consistently, let the frontend read the message
-    await logAction(req.user, 'BULK_CREATE_ITEMS', 'Item', 'BULK', { inserted, updated, failedValidation });
-    
     res.status(200).json({
         message: summary,
         stats: { inserted, updated, failedValidation },
@@ -125,13 +129,15 @@ exports.bulkCreate = async (req, res, next) => {
 // PUT /api/items/:id — Update item
 exports.update = async (req, res, next) => {
   try {
-    const item = await Item.findByIdAndUpdate(req.params.id, req.body, {
+    const payload = { ...req.body };
+    if (!payload.sap_id || payload.sap_id.trim() === '') {
+        delete payload.sap_id;
+    }
+    const item = await Item.findByIdAndUpdate(req.params.id, payload, {
       new: true,
       runValidators: true,
     });
     if (!item) return res.status(404).json({ error: 'Item not found' });
-    
-    await logAction(req.user, 'UPDATE_ITEM', 'Item', item._id, { sap_id: item.sap_id });
     
     res.json(item);
   } catch (err) {
@@ -144,8 +150,6 @@ exports.remove = async (req, res, next) => {
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ error: 'Item not found' });
-    
-    await logAction(req.user, 'DELETE_ITEM', 'Item', item._id, { sap_id: item.sap_id, title: item.title });
     
     res.json({ message: 'Item deleted', item });
   } catch (err) {

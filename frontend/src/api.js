@@ -63,7 +63,4 @@ export const issuesAPI = {
   delete: (id) => api.delete(`/issues/${id}`),
 };
 
-// ── Logs ──────────────────────────────────────────────
-export const logsAPI = {
-  getAll: () => api.get('/logs'),
-};
+

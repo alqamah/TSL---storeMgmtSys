@@ -20,6 +20,7 @@ export default function IssuesPage() {
   const [filter, setFilter] = useState('all'); // all | active | returned
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState([]);
 
   // Issue modal state
   const [issueModalOpen, setIssueModalOpen] = useState(false);
@@ -37,6 +38,7 @@ export default function IssuesPage() {
     expected_return_date: '',
     remarks: '',
     items: [{ item: '', quantity: 1, search: '' }],
+    is_permanent: false,
   });
 
   // Return modal state
@@ -52,6 +54,7 @@ export default function IssuesPage() {
       const params = {};
       if (filter === 'active') params.status = 'active';
       if (filter === 'returned') params.status = 'returned';
+      if (filter === 'permanent') params.status = 'permanent';
       const res = await issuesAPI.getAll(params);
       setIssues(res.data);
       if (loadStats) loadStats();
@@ -79,6 +82,7 @@ export default function IssuesPage() {
         expected_return_date: '',
         remarks: '',
         items: [{ item: '', quantity: 1, search: '' }],
+        is_permanent: false,
       });
       setIssueModalOpen(true);
     } catch (err) {
@@ -110,7 +114,7 @@ export default function IssuesPage() {
 
   const handleIssueSubmit = async (e) => {
     e.preventDefault();
-    if (issueForm.expected_return_date && new Date(issueForm.expected_return_date) < new Date(issueForm.issue_date)) {
+    if (!issueForm.is_permanent && issueForm.expected_return_date && new Date(issueForm.expected_return_date) < new Date(issueForm.issue_date)) {
       toast.error('Expected return date cannot be before issue date');
       return;
     }
@@ -130,7 +134,8 @@ export default function IssuesPage() {
           quantity: Number(i.quantity),
         })),
         issue_date: issueForm.issue_date,
-        expected_return_date: issueForm.expected_return_date || null,
+        expected_return_date: (issueForm.is_permanent ? null : issueForm.expected_return_date) || null,
+        is_permanent: issueForm.is_permanent,
       });
       toast.success('Items issued successfully');
       setIssueModalOpen(false);
@@ -197,6 +202,38 @@ export default function IssuesPage() {
            remarks.includes(q);
   });
 
+  const isAllSelected = displayedIssues.length > 0 && selected.length === displayedIssues.length;
+  
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(displayedIssues.map(i => i._id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const handleSelectOne = (e, id) => {
+    e.stopPropagation();
+    if (e.target.checked) {
+      setSelected([...selected, id]);
+    } else {
+      setSelected(selected.filter(s => s !== id));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selected.length} selected issues? Stock will be restored for un-returned items.`)) return;
+    try {
+      await Promise.all(selected.map((id) => issuesAPI.delete(id)));
+      toast.success(`${selected.length} issues deleted and stock restored`);
+      setSelected([]);
+      loadIssues();
+    } catch (err) {
+      toast.error('Some issues could not be deleted');
+      loadIssues();
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-page">
@@ -210,7 +247,7 @@ export default function IssuesPage() {
       <div className="page-header">
         <div className="page-header-row">
           <div>
-            <h1 className="page-title">Issues</h1>
+            <h1 className="page-title">Issued Items</h1>
             <p className="page-subtitle">Track item issuance and returns</p>
           </div>
           
@@ -238,9 +275,16 @@ export default function IssuesPage() {
           )}
 
           {user && (
-            <button id="issue-item-btn" className="btn btn-primary" onClick={openIssueModal}>
-              <HiOutlinePlus /> Issue Items
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {selected.length > 0 && (
+                <button className="btn btn-danger" onClick={handleDeleteSelected}>
+                  <HiOutlineTrash /> {selected.length} Selected
+                </button>
+              )}
+              <button id="issue-item-btn" className="btn btn-primary" onClick={openIssueModal}>
+                <HiOutlinePlus /> Issue Items
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -249,7 +293,7 @@ export default function IssuesPage() {
         <div className="table-container">
           <div className="table-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              {['all', 'active', 'returned'].map((f) => (
+              {['all', 'active', 'returned', 'permanent'].map((f) => (
                 <button
                   key={f}
                   className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-ghost'}`}
@@ -265,7 +309,7 @@ export default function IssuesPage() {
               <input
                 type="text"
                 className="form-input"
-                placeholder="Search issues..."
+                placeholder="Search issued items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: '32px', width: '100%', margin: 0 }}
@@ -277,6 +321,11 @@ export default function IssuesPage() {
             <table>
               <thead>
                 <tr>
+                  {user && (
+                    <th style={{ width: '40px' }}>
+                      <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
+                    </th>
+                  )}
                   <th>Employee</th>
                   <th>Items Issued</th>
                   <th>Issue Date</th>
@@ -291,7 +340,7 @@ export default function IssuesPage() {
               <tbody>
                 {displayedIssues.length === 0 ? (
                   <tr>
-                    <td colSpan={user ? 8 : 7}>
+                    <td colSpan={user ? 9 : 8}>
                       <div className="empty-state">
                         <HiOutlineClipboardList className="icon" />
                         <p>No issues found</p>
@@ -301,6 +350,16 @@ export default function IssuesPage() {
                 ) : (
                   displayedIssues.map((issue) => (
                     <tr key={issue._id}>
+                      {user && (
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={selected.includes(issue._id)}
+                            onChange={(e) => handleSelectOne(e, issue._id)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </td>
+                      )}
                       <td style={{ color: 'var(--text-primary)' }}>
                         {issue.employee_name || '—'}
                         <br />
@@ -336,7 +395,9 @@ export default function IssuesPage() {
                       <td>{formatDate(issue.expected_return_date)}</td>
                       <td>{formatDate(issue.return_date)}</td>
                       <td>
-                        {issue.return_date ? (
+                        {issue.is_permanent ? (
+                          <span className="badge badge-blue">Permanent</span>
+                        ) : issue.return_date ? (
                           <span className="badge badge-green">Returned</span>
                         ) : (
                           <span className="badge badge-amber">Active</span>
@@ -347,7 +408,7 @@ export default function IssuesPage() {
                       {user && (
                         <td>
                           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            {!issue.return_date && (
+                            {!issue.is_permanent && !issue.return_date && (
                               <button
                                 className="btn btn-success btn-sm"
                                 onClick={() => openReturnModal(issue)}
@@ -507,9 +568,19 @@ export default function IssuesPage() {
                       onChange={(e) =>
                         setIssueForm({ ...issueForm, expected_return_date: e.target.value })
                       }
+                      disabled={issueForm.is_permanent}
                     />
                   </div>
-                  <div className="form-group" />
+                  <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <button
+                      type="button"
+                      className={`btn ${issueForm.is_permanent ? 'btn-primary' : 'btn-secondary'}`}
+                      style={{ width: '100%', height: '42px' }}
+                      onClick={() => setIssueForm({ ...issueForm, is_permanent: !issueForm.is_permanent, expected_return_date: '' })}
+                    >
+                      {issueForm.is_permanent ? 'Permanent Issue ✓' : 'Permanent Issue'}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="form-row">

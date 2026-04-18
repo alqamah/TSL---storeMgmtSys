@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { itemsAPI, issuesAPI } from '../api';
+import logo from '../assets/logo1.svg';
 import {
   HiOutlineViewGrid,
   HiOutlineCube,
@@ -56,13 +57,9 @@ export default function Layout() {
   };
 
   const navItems = [
-    { to: '/items', icon: <HiOutlineCube />, label: 'Items' },
-    { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issues' },
+    { to: '/items', icon: <HiOutlineCube />, label: 'Items Available' },
+    { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issued Items' },
   ];
-
-  if (user && user.role === 'admin') {
-    navItems.push({ to: '/logs', icon: <HiOutlineDocumentText />, label: 'Logs' });
-  }
 
   return (
     <div className="app-layout">
@@ -73,10 +70,10 @@ export default function Layout() {
           style={{ cursor: 'pointer' }}
         >
           <div className="sidebar-logo">
-            <div className="sidebar-logo-icon"><img src="../assets/logo2.svg" width="50" height="50" alt="logo" /></div>
+            <div className="sidebar-logo-icon"><img src={logo} width="30" height="30" alt="logo" /></div>
             <div>
-              <div className="sidebar-logo-text">StoreMgmt</div>
-              <div className="sidebar-logo-sub">Management System</div>
+              <div className="sidebar-logo-text">FMM-INFRA eSTORE</div>
+              <div className="sidebar-logo-sub">Store Management System</div>
             </div>
           </div>
         </div>
@@ -128,6 +125,9 @@ export default function Layout() {
               Login
             </NavLink>
           )}
+        </div>
+        <div className="sidebar-footer-alqama">
+          alqama.hasnain@tatasteel.com
         </div>
       </aside>
 

@@ -7,8 +7,6 @@ import { Navigate } from 'react-router-dom';
 import IssuesPage from './pages/IssuesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import LogsPage from './pages/LogsPage';
-
 function App() {
   return (
     <BrowserRouter>
@@ -25,8 +23,6 @@ function App() {
               <Route path="/items" element={<ItemsPage />} />
 
               <Route path="/issues" element={<IssuesPage />} />
-              
-              <Route path="/logs" element={<LogsPage />} />
             </Route>
           </Routes>
         </ToastProvider>

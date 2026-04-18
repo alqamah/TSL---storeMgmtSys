@@ -34,7 +34,6 @@ export default function RegisterPage() {
       <div className="login-card">
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
-          <div className="login-logo">📦</div>
           <h1 className="login-title">Create Account</h1>
           <p className="login-subtitle">Register as a store manager</p>
         </div>
@@ -47,7 +46,7 @@ export default function RegisterPage() {
               className="form-input"
               type="text"
               name="p_no"
-              placeholder="e.g. ABC123"
+              placeholder="Enter your TSL Personal Number"
               value={form.p_no}
               onChange={handleChange}
               maxLength={6}
