@@ -67,13 +67,13 @@ export default function Layout() {
   return (
     <div className="app-layout">
       <aside className="sidebar">
-        <div 
-          className="sidebar-header" 
-          onClick={() => navigate('/')} 
+        <div
+          className="sidebar-header"
+          onClick={() => navigate('/')}
           style={{ cursor: 'pointer' }}
         >
           <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">📦</div>
+            <div className="sidebar-logo-icon"><img src="../assets/logo2.svg" width="50" height="50" alt="logo" /></div>
             <div>
               <div className="sidebar-logo-text">StoreMgmt</div>
               <div className="sidebar-logo-sub">Management System</div>

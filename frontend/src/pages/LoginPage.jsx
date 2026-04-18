@@ -32,7 +32,7 @@ export default function LoginPage() {
       <div className="login-card">
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
-          <div className="login-logo">📦</div>
+          <div className="login-logo"><img src="../assets/logo.png" alt="logo" /></div>
           <h1 className="login-title">Welcome Back</h1>
           <p className="login-subtitle">Sign in to manage the store</p>
         </div>
