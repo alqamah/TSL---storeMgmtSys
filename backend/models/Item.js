@@ -3,9 +3,13 @@ const { Schema } = mongoose;
 
 const itemSchema = new Schema(
   {
+    part_no: {
+      type:String,
+      trim:true,
+      description: "Part number of the item in the format: FMM/INFRA/XX/"
+    },
     sap_id: {
       type: String,
-      required: [true, 'SAP ID is required'],
       unique: true,
       trim: true,
     },
@@ -13,17 +17,7 @@ const itemSchema = new Schema(
       type: String,
       required: [true, 'Title is required'],
       trim: true,
-    },
-    category: {
-      type: String,
-      trim: true,
-      // enum: ['C1', 'C2', 'C3', 'C4', 'C5'],
-    },
-    capacity: {
-      type: String,
-      trim: true,
-      default: '',
-    },
+    },    
     quantity: {
       type: Number,
       required: [true, 'Quantity is required'],
@@ -32,18 +26,33 @@ const itemSchema = new Schema(
     },
     description: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
+    },
+    category: {
+      type: String,
+      trim: true,
+      // enum: ['C1', 'C2', 'C3', 'C4', 'C5'],
+    },
+    location: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    capacity: {
+      type: String,
+      default: '',
+      trim: true,
     },
     certificate_no: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
     },
     make: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
     },
     prev_due_date: {
       type: Date,
@@ -60,33 +69,31 @@ const itemSchema = new Schema(
         message: 'Next due date cannot be before prev due date',
       },
     },
-    location: {
-      type: String,
-      trim: true,
-      default: '',
-    },
     owner: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
     },
     umc: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
+    },
+    date_added:{
+      type: Date,
+      description:"Date when item was added to the store"
     },
     remarks: {
       type: String,
-      trim: true,
       default: '',
+      trim: true,
     },
   },
   {
     timestamps: true,
   }
 );
-
 // Index for common queries
-itemSchema.index({ title: 'text', sap_id: 'text' });
+itemSchema.index({ title: 'text', location: 'text' });
 
 module.exports = mongoose.model('Item', itemSchema);
