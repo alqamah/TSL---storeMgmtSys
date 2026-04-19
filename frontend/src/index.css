@@ -170,13 +170,10 @@ a:hover {
 .sidebar-logo-icon {
   width: 36px;
   height: 36px;
-  background: var(--gradient-blue);
-  border-radius: var(--radius-md);
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-lg);
-  color: var(--bg-primary);
   flex-shrink: 0;
 }
 
@@ -293,7 +290,7 @@ a:hover {
   padding: var(--space-4);
   border-top: 1px solid var(--border-subtle);
   font-style: italic;
-  background-color: #000;
+  background-color: var(--bg-primary);
   letter-spacing: .5px;
 }
 

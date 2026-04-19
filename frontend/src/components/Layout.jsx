@@ -140,10 +140,11 @@ export default function Layout() {
               Login
             </NavLink>
           )}
+          <div className="sidebar-footer-alqama">
+            alqama.hasnain@tatasteel.com
+          </div>
         </div>
-        <div className="sidebar-footer-alqama">
-          alqama.hasnain@tatasteel.com
-        </div>
+        
       </aside>
 
       <main className="main-content">
