@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
+import { HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 import logo from '../assets/logo1.svg';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const [pNo, setPNo] = useState('');
   const [password, setPassword] = useState('');
@@ -31,6 +34,9 @@ export default function LoginPage() {
     <div className="login-page">
       
       <div className="login-card">
+        <button className="login-theme-btn" onClick={toggleTheme} aria-label="Toggle Theme">
+          {isDarkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
+        </button>
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
           <h1 className="login-title">Welcome Back</h1>

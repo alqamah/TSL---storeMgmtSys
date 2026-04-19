@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { itemsAPI, issuesAPI } from '../api';
+import { useTheme } from '../context/ThemeContext';
 import logo from '../assets/logo1.svg';
 import {
   HiOutlineViewGrid,
@@ -11,11 +12,14 @@ import {
   HiOutlineLogin,
   HiOutlineExclamationCircle,
   HiOutlineDocumentText,
+  HiOutlineSun,
+  HiOutlineMoon,
 } from 'react-icons/hi';
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const [stats, setStats] = useState({
     items: 0,
@@ -97,6 +101,16 @@ export default function Layout() {
         <div className="sidebar-footer">
           {user ? (
             <>
+              <button
+                className="sidebar-link"
+                onClick={toggleTheme}
+                style={{ marginTop: '0.5rem' }}
+              >
+                <span className="icon">
+                  {isDarkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
+                </span>
+                {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              </button>
               <div className="sidebar-user">
                 <div className="sidebar-user-avatar">
                   {user.name?.charAt(0).toUpperCase()}
@@ -106,6 +120,7 @@ export default function Layout() {
                   <div className="sidebar-user-role">{user.role}</div>
                 </div>
               </div>
+              
               <button
                 className="sidebar-link"
                 onClick={handleLogout}

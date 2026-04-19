@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/ThemeContext';
+import { HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const [form, setForm] = useState({ p_no: '', name: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -32,6 +35,9 @@ export default function RegisterPage() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <button className="login-theme-btn" onClick={toggleTheme} aria-label="Toggle Theme">
+          {isDarkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
+        </button>
         <button className="login-close-btn" onClick={() => navigate('/')} aria-label="Close">✕</button>
         <div className="login-header">
           <h1 className="login-title">Create Account</h1>

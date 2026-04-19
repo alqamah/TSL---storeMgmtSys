@@ -330,7 +330,7 @@ export default function IssuesPage() {
                   Bulk Export
                 </button>
               )}
-              <button id="issue-item-btn" className="btn btn-primary" onClick={openIssueModal}>
+              <button id="issue-item-btn" className="btn btn-secondary" onClick={openIssueModal}>
                 <HiOutlinePlus /> Issue Items
               </button>
             </div>

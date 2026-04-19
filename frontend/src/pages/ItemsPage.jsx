@@ -371,7 +371,7 @@ export default function ItemsPage() {
                   Bulk Export
                 </button>
               )}
-                <button className="btn btn-primary" onClick={openCreate}>
+                <button className="btn btn-secondary" onClick={openCreate}>
                 <HiOutlinePlus /> Add Item
               </button>
             </div>

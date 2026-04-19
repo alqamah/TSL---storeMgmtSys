@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import ItemsPage from './pages/ItemsPage';
 import { Navigate } from 'react-router-dom';
@@ -10,8 +11,9 @@ import RegisterPage from './pages/RegisterPage';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
           <Routes>
             {/* Auth pages — no sidebar */}
             <Route path="/login" element={<LoginPage />} />
@@ -25,8 +27,9 @@ function App() {
               <Route path="/issues" element={<IssuesPage />} />
             </Route>
           </Routes>
-        </ToastProvider>
-      </AuthProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

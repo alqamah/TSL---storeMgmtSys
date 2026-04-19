@@ -220,7 +220,7 @@ a:hover {
 }
 
 .sidebar-link:hover {
-  background: var(--bg-card);
+  background: var(--bg-card-hover);
   color: var(--text-primary);
 }
 
@@ -397,9 +397,20 @@ a:hover {
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--bg-card);
+  background: var(--bg-card-hover);
   color: var(--text-primary);
   border-color: var(--text-muted);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--border-focus);
 }
 
 .btn-sm {
@@ -542,9 +553,9 @@ a:hover {
   transition: all var(--transition-base);
 }
 
-.stat-card:hover {
+/* .stat-card:hover {
   border-color: var(--border-focus);
-}
+} */
 
 .stat-icon {
   width: 48px;
@@ -1074,4 +1085,57 @@ tbody tr:hover {
   .table-search {
     max-width: 100%;
   }
+}
+
+/* LIGHT MODE VARIABLES */
+body.light-mode {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-input: #ffffff;
+  --bg-modal: rgba(0, 0, 0, 0.4);
+
+  --border-default: #e2e8f0;
+  --border-focus: #0f172a;
+  --border-subtle: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --accent-blue: #000000;
+  --accent-blue-hover: #333333;
+  --accent-green: #333333;
+  --accent-green-hover: #555555;
+  --accent-amber: #555555;
+  --accent-amber-hover: #777777;
+  --accent-red: #777777;
+  --accent-red-hover: #999999;
+  --accent-purple: #000000;
+
+  --gradient-blue: #000000;
+  --gradient-green: #333333;
+  --gradient-amber: #555555;
+}
+
+.login-theme-btn {
+  position: absolute;
+  top: var(--space-4);
+  right: calc(var(--space-4) + 40px);
+  background: transparent;
+  border: none;
+  font-size: var(--font-xl);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  padding: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-theme-btn:hover {
+  color: var(--text-primary);
 }
