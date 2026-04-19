@@ -6,7 +6,7 @@ const itemSchema = new Schema(
     part_no: {
       type:String,
       trim:true,
-      description: "Part number of the item in the format: FMM/INFRA/XX/"
+      description: `=ARRAYFORMULA(IF(C2="", "", REGEXREPLACE(REGEXREPLACE(F2, "(\w{1,3})\w*", "$1"), "\s+", "_") & "/" & REGEXREPLACE(REGEXREPLACE(C2, "(\w{1,3})\w*", "$1"), "\s+", "_") & IF(E2="", "", "/" & E2)))`
     },
     sap_id: {
       type: String,
