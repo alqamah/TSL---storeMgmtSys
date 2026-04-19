@@ -19,4 +19,4 @@ issues -> all item-details to be present (desc, part no, etc). Right now only is
 
 !!!DECIDE ABOUT THE UNIQUE ID TO BE USED FOR ITEMS!!!
 
-ui-> add light mode
+ui-> add light mode ✅

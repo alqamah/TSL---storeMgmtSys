@@ -421,7 +421,7 @@ export default function ItemsPage() {
                       <input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} style={{ cursor: 'pointer' }} />
                     </th>
                   )}
-                  <th>SAP ID</th>
+                  <th>Part No</th>
                   <th>Title</th>
                   <th>Qty</th>
                   <th>Location</th>
@@ -454,7 +454,7 @@ export default function ItemsPage() {
                           </td>
                         )}
                         <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                          {item.sap_id}
+                          {item.part_no || '—'}
                         </td>
                         <td style={{ color: 'var(--text-primary)' }}>{item.title}</td>
                         <td>
@@ -528,9 +528,9 @@ export default function ItemsPage() {
             </div>
             <div className="modal-body">
               <div className="item-details-grid">
+                <p style={{border: '1px solid grey',padding: '1rem', gridColumn: '1 / -1' }}><span className="label"><b>Title</b></span><span className="value">{viewing.title}</span></p>
                 <p><span className="label">Part No.</span><span className="value">{viewing.part_no || '—'}</span></p>
                 <p><span className="label">SAP ID</span><span className="value">{viewing.sap_id || '—'}</span></p>
-                <p style={{ gridColumn: '1 / -1' }}><span className="label"><b>Title</b></span><span className="value">{viewing.title}</span></p>
                 <p><span className="label">Category</span><span className="value">{viewing.category || '—'}</span></p>
                 <p><span className="label">Capacity</span><span className="value">{viewing.capacity || '—'}</span></p>
                 <p>
