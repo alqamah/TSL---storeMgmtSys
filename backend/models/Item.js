@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+// Defines the inventory item document stored in MongoDB.
 const itemSchema = new Schema(
   {
     part_no: {
       type:String,
       trim:true,
+      // Spreadsheet formula kept as metadata/reference for generating part numbers externally.
       description: `=ARRAYFORMULA(IF(C2="", "", REGEXREPLACE(REGEXREPLACE(F2, "(\w{1,3})\w*", "$1"), "\s+", "_") & "/" & REGEXREPLACE(REGEXREPLACE(C2, "(\w{1,3})\w*", "$1"), "\s+", "_") & IF(E2="", "", "/" & E2)))`
     },
     sap_id: {
@@ -62,6 +64,7 @@ const itemSchema = new Schema(
       type: Date,
       default: null,
       validate: {
+        // Allow empty dates, but when both dates exist the next due date must not be earlier.
         validator: function (value) {
           if (!value || !this.prev_due_date) return true;
           return value >= this.prev_due_date;
@@ -90,10 +93,12 @@ const itemSchema = new Schema(
     },
   },
   {
+    // Adds createdAt and updatedAt fields automatically.
     timestamps: true,
   }
 );
-// Index for common queries
+
+// Text index for common item search queries.
 itemSchema.index({ title: 'text', location: 'text' });
 
 module.exports = mongoose.model('Item', itemSchema);
