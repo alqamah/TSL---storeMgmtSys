@@ -27,12 +27,6 @@ export default function Layout() {
     overdueItems: 0,
   });
 
-  useEffect(() => {
-    if (user) {
-      loadStats();
-    }
-  }, [user]);
-
   const loadStats = async () => {
     try {
       const [itemsRes, activeRes] = await Promise.all([
@@ -55,14 +49,23 @@ export default function Layout() {
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      loadStats();
+    }
+  }, [user]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   const navItems = [
+    { to: '/catalog', icon: <HiOutlineViewGrid />, label: 'Catalog' },
     { to: '/items', icon: <HiOutlineCube />, label: 'Items Available' },
-    { to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issued Items' },
+    ...(user
+      ? [{ to: '/issues', icon: <HiOutlineClipboardList />, label: 'Issued Items' }]
+      : []),
   ];
 
   return (

@@ -14,10 +14,12 @@ app.use(express.json());
 const authRoutes     = require('./routes/authRoutes');
 const itemRoutes     = require('./routes/itemRoutes');
 const issueRoutes    = require('./routes/issueRoutes');
+const publicRoutes   = require('./routes/publicRoutes');
 
 app.use('/api/auth',      authRoutes);
 app.use('/api/items',     itemRoutes);
 app.use('/api/issues',    issueRoutes);
+app.use('/api/public',    publicRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

@@ -63,4 +63,10 @@ export const issuesAPI = {
   delete: (id) => api.delete(`/issues/${id}`),
 };
 
+// ── Public catalogue (external users, no auth) ───────
+export const publicAPI = {
+  getAll: () => api.get('/public/items'),
+  getById: (id) => api.get(`/public/items/${id}`),
+};
+
 

@@ -1,13 +1,30 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import ItemsPage from './pages/ItemsPage';
-import { Navigate } from 'react-router-dom';
 import IssuesPage from './pages/IssuesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import PublicItemsPage from './pages/PublicItemsPage';
+
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="loading-page">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  if (user) return <Navigate to="/items" replace />;
+  if (location.pathname === '/') return <Navigate to="/catalog" replace />;
+  return null;
+}
 function App() {
   return (
     <BrowserRouter>
@@ -21,7 +38,8 @@ function App() {
 
             {/* Main app — with sidebar */}
             <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/items" replace />} />
+              <Route path="/" element={<HomeRoute />} />
+              <Route path="/catalog" element={<PublicItemsPage />} />
               <Route path="/items" element={<ItemsPage />} />
 
               <Route path="/issues" element={<IssuesPage />} />
