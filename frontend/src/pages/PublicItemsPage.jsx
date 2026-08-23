@@ -164,30 +164,23 @@ export default function PublicItemsPage() {
               {detailLoading || !detail ? (
                 <div className="loading-page"><div className="spinner" /></div>
               ) : (
-                <>
-                  <div className="item-details-grid">
-                    <p style={{ gridColumn: '1 / -1' }}>
-                      <span className="label">Title</span>
-                      <span className="value" style={{ fontWeight: 600 }}>{detail.title}</span>
-                    </p>
-                    <p>
-                      <span className="label">Quantity Available</span>
-                      <span className="value">
-                        <span className={`badge ${detail.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
-                          {detail.quantity}
-                        </span>
+                <div className="item-details-grid">
+                  <p style={{ border: '1px solid grey', padding: '1rem', gridColumn: '1 / -1' }}><span className="label"><b>Title</b></span><span className="value">{detail.title}</span></p>
+                  <p>
+                    <span className="label"><b>Quantity Available</b></span>
+                    <span className="value">
+                      <span className={`badge ${detail.quantity > 0 ? 'badge-green' : 'badge-red'}`}>
+                        {detail.quantity}
                       </span>
-                    </p>
-                    <p><span className="label">UMC</span><span className="value">{detail.umc || '—'}</span></p>
-                    <p><span className="label">Category</span><span className="value">{detail.category || '—'}</span></p>
-                    <p><span className="label">Location</span><span className="value">{detail.location || '—'}</span></p>
-                    <p><span className="label">Capacity</span><span className="value">{detail.capacity || '—'}</span></p>
-                    <p><span className="label">Make</span><span className="value">{detail.make || '—'}</span></p>
-                  </div>
-                  {detail.description && (
-                    <p className="catalog-desc"><span className="label">Description</span><span className="value">{detail.description}</span></p>
-                  )}
-                </>
+                    </span>
+                  </p>
+                  <p><span className="label">UMC</span><span className="value">{detail.umc || '—'}</span></p>
+                  <p><span className="label">Category</span><span className="value">{detail.category || '—'}</span></p>
+                  <p><span className="label">Location</span><span className="value">{detail.location || '—'}</span></p>
+                  <p><span className="label">Capacity</span><span className="value">{detail.capacity || '—'}</span></p>
+                  <p><span className="label">Make</span><span className="value">{detail.make || '—'}</span></p>
+                  <p style={{ gridColumn: '1 / -1' }}><span className="label">Description</span><span className="value">{detail.description || '—'}</span></p>
+                </div>
               )}
             </div>
             <div className="modal-footer">
@@ -258,21 +251,25 @@ export default function PublicItemsPage() {
           gap: var(--space-2);
           flex-wrap: wrap;
         }
-        .catalog-desc {
-          border-top: 1px solid var(--border-subtle);
-          padding-top: var(--space-4);
-        }
-        .catalog-desc span.label {
-          color: var(--text-muted);
-          font-weight: 600;
-          display: block;
-          margin-bottom: var(--space-1);
-          font-size: var(--font-xs);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+        .item-details-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
         }
         .item-details-grid p {
           margin: 0;
+          font-size: var(--font-base);
+        }
+        .item-details-grid span.label {
+          color: var(--text-muted);
+          font-weight: 600;
+          display: block;
+          margin-bottom: 0.25rem;
+          font-size: var(--font-xs);
+          text-transform: uppercase;
+        }
+        .item-details-grid span.value {
+          color: var(--text-primary);
         }
         @media (max-width: 640px) {
           .catalog-grid {
